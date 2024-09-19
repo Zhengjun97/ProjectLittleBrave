@@ -33,7 +33,6 @@ export class PreloadScene extends Phaser.Scene{
         this.load.image(MONSTER_ASSET_KEYS.CARNODUSK, `${mosterTamerAssetPath}/monsters/carnodusk.png`);
         this.load.image(MONSTER_ASSET_KEYS.IGUANIGNITE, `${mosterTamerAssetPath}/monsters/iguanignite.png`);
         
-        //console.log(`${mosterTamerAssetPath}/battle-backgrounds/forest-background.png`);
     }
 
     create() {
