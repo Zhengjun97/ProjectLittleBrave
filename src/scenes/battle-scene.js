@@ -2,6 +2,17 @@ import { BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS,
 import Phaser from "../lib/phaser.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 
+const BATTLE_MENU_OPTION = Object.freeze({
+    FIGHT: 'FIGHT',
+    SWITCH: 'SWITCH',
+    ITEM: 'ITEM',
+    RUN: 'RUN',
+}) 
+
+const battleTextUiStyle = {
+    color: 'black', fontSize: '30px',
+}
+
 export class BattleScene extends Phaser.Scene{
     constructor() {
         super({
@@ -38,6 +49,22 @@ export class BattleScene extends Phaser.Scene{
             this.add.text(30,55,'HP', {color: '#FF6505', fontSize: '24px', fontStyle: 'italic'}),
             ]);    
         
+        //render out the main info and sub info panes
+        this.#mainInfoPane();
+        this.add.container(520, 448,[this.#mainInfoSubPane(), 
+            this.add.text(55, 22, BATTLE_MENU_OPTION.FIGHT, battleTextUiStyle),
+            this.add.text(240, 22, BATTLE_MENU_OPTION.SWITCH, battleTextUiStyle),
+            this.add.text(55, 70, BATTLE_MENU_OPTION.ITEM, battleTextUiStyle),
+            this.add.text(240, 70, BATTLE_MENU_OPTION.RUN, battleTextUiStyle),
+        ]);
+
+        this.add.container(0, 448, [
+            this.add.text(55, 22, '-', battleTextUiStyle),
+            this.add.text(240, 22, '-', battleTextUiStyle),
+            this.add.text(55, 70, '-', battleTextUiStyle),
+            this.add.text(240, 70, '-', battleTextUiStyle),
+        ])
+
     }
 
     #createHP(x,y) {
@@ -47,5 +74,18 @@ export class BattleScene extends Phaser.Scene{
         midCap.displayWidth = 360;
         const rightCap = this.add.image(midCap.x + midCap.displayWidth, y, HEALTH_BAR_ASSET_KEYS.RIGHT_CAP).setOrigin(0,0.5).setScale(1, scaleY);
         return this.add.container(x, y, [leftCap, midCap, rightCap]);
+    }
+
+    #mainInfoPane() {
+        const padding = 4;
+        const rectHeight = 124;
+        this.add.rectangle(padding, this.scale.height - rectHeight - padding, this.scale.width - padding * 2, rectHeight, 0xede4f3,1).setOrigin(0).setStrokeStyle(8, 0xe4434a, 1);
+
+    }
+
+    #mainInfoSubPane() {
+        const rectWidth = 500;
+        const rectHeight = 124;
+        return this.add.rectangle(0, 0, rectWidth, rectHeight, 0xede4f3,1).setOrigin(0).setStrokeStyle(8, 0x905ac2, 1);
     }
 }
