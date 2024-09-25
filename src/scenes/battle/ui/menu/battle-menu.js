@@ -1,3 +1,4 @@
+import Phaser from "../../../../lib/phaser.js";
 import { MONSTER_ASSET_KEYS } from "../../../../assets/asset-keys.js";
 
 const BATTLE_MENU_OPTION = Object.freeze({
@@ -5,20 +6,28 @@ const BATTLE_MENU_OPTION = Object.freeze({
     SWITCH: 'SWITCH',
     ITEM: 'ITEM',
     RUN: 'RUN',
-}) 
+});
 
 const battleTextUiStyle = {
     color: 'black', fontSize: '30px',
-}
+};
 
 export class BattleMenu {
+    /** @type {Phaser.Scene} */
     #scene;
+    /** @type {Phaser.GameObjects.Container} */
     #mainBattleMenuPhaserContainerGameObj;
+    /** @type {Phaser.GameObjects.Container} */
     #moveSelectionSubBattleMenuPhaserContainerGameObj;
-    #battleTextGameObjLine1;
-    #battleTextGameObjLine2;
     /** @type {Phaser.GameObjects.Text} */
+    #battleTextGameObjLine1;
+    /** @type {Phaser.GameObjects.Text} */
+    #battleTextGameObjLine2;
 
+    /**
+     * 
+     * @param {Phaser.Scene} scene the Phaser 3 scene the battle menu will be added to 
+     */
     constructor(scene) {
         this.#scene = scene;
         this.#mainInfoPane();
@@ -45,6 +54,23 @@ export class BattleMenu {
 
     hideMsAttackSubMenu() {
         this.#moveSelectionSubBattleMenuPhaserContainerGameObj.setAlpha(0);
+    }
+
+    /**
+     * @param {import("../../../../common/direction.js").Direction|'OK'|'CANCEL'} input
+     */
+    handlePlayerInput(input) {
+        console.log(input);
+        if (input === 'CANCEL') {
+            this.hideMsAttackSubMenu();
+            this.showMainBattleMenu();
+            return;
+        }
+        if (input === 'OK') {
+            this.hideMainBattleMenu();
+            this.showMsAttackSubMenu();
+        }
+
     }
 
     //render out the main info and sub info panes
