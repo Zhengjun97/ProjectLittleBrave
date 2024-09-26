@@ -30,7 +30,7 @@ export class BattleScene extends Phaser.Scene{
         this.add.image(256,316,MONSTER_ASSET_KEYS.IGUANIGNITE,(0)).setScale(2);
 
         //render out the player HP bar
-        const playerMsName = this.add.text(30,20,MONSTER_ASSET_KEYS.IGUANIGNITE, {color: '#7E3D3F', fontSize: '32px'});
+        const playerMsName = this.add.text(30,20,'Main Character', {color: '#7E3D3F', fontSize: '32px'});
         this.add.container(556,318,[this.add.image(0,0,BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0)
             , playerMsName, this.#createHP(34,34), 
             this.add.text(playerMsName.width + 35,23,'L5', {color: '#ED474B', fontSize: '28px'}),
@@ -39,7 +39,7 @@ export class BattleScene extends Phaser.Scene{
             ]);
 
         //render out the enemy HP bar
-        const enemyMsName = this.add.text(30,20,MONSTER_ASSET_KEYS.CARNODUSK, {color: '#7E3D3F', fontSize: '32px'});
+        const enemyMsName = this.add.text(30,20,'Dark Knight', {color: '#7E3D3F', fontSize: '32px'});
         this.add.container(0,0,[this.add.image(0,0,BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0)
             , enemyMsName, this.#createHP(34,34), 
             this.add.text(enemyMsName.width + 35,23,'L5', {color: '#ED474B', fontSize: '28px'}),

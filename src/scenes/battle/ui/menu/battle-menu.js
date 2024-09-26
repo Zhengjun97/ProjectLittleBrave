@@ -104,7 +104,7 @@ export class BattleMenu {
     #createMainBattleMenu() {
         this.#battleTextGameObjLine1 = this.#scene.add.text(20, 468, 'what should', BATTLE_UI_TEXT_STYLE);
         //update to use monstrer data that is passed into this class instance
-        this.#battleTextGameObjLine2 = this.#scene.add.text(20, 512, `${MONSTER_ASSET_KEYS.IGUANIGNITE} do next`, BATTLE_UI_TEXT_STYLE);
+        this.#battleTextGameObjLine2 = this.#scene.add.text(20, 512, `I do next?`, BATTLE_UI_TEXT_STYLE);
 
         this.#mainBattleMenuCursorPhaserImgGameObj = this.#scene.add.image(BATTLE_MENU_CURSOR_POS.x, BATTLE_MENU_CURSOR_POS.y, UI_ASSET_KEYS.CURSOR, 0).setOrigin(0.5).setScale(2.5);
 
