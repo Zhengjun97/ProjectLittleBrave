@@ -26,8 +26,8 @@ export class BattleScene extends Phaser.Scene{
         //create main background
         this.add.image(0,0,BATTLE_BACKGROUND_ASSET_KEYS.FOREST).setOrigin(0);
         //render player and enemy monster
-        this.add.image(768,144,MONSTER_ASSET_KEYS.CARNODUSK,(0));
-        this.add.image(256,316,MONSTER_ASSET_KEYS.IGUANIGNITE,(0)).setFlipX(true);
+        this.add.image(768,144,MONSTER_ASSET_KEYS.CARNODUSK,(0)).setFlipX(true).setScale(0.5);
+        this.add.image(256,316,MONSTER_ASSET_KEYS.IGUANIGNITE,(0)).setScale(2);
 
         //render out the player HP bar
         const playerMsName = this.add.text(30,20,MONSTER_ASSET_KEYS.IGUANIGNITE, {color: '#7E3D3F', fontSize: '32px'});
