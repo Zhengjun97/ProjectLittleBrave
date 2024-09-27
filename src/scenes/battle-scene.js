@@ -8,7 +8,7 @@ import { SCENE_KEYS } from "./scene-keys.js";
 
 export class BattleScene extends Phaser.Scene{
     /** @type {BattleMenu} */
-    #battleMenue;
+    #battleMenu;
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     #cursorKeys;
     constructor() {
@@ -47,8 +47,8 @@ export class BattleScene extends Phaser.Scene{
             ]);
             
         //render out the main info and sub info panes
-        this.#battleMenue = new BattleMenu(this);
-        this.#battleMenue.showMainBattleMenu();
+        this.#battleMenu = new BattleMenu(this);
+        this.#battleMenu.showMainBattleMenu();
 
         this.#cursorKeys = this.input.keyboard.createCursorKeys();
 
@@ -57,12 +57,21 @@ export class BattleScene extends Phaser.Scene{
     update() {
         const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(this.#cursorKeys.space);
         if (wasSpaceKeyPressed) {
-            this.#battleMenue.handlePlayerInput('OK');
-            return;
+            this.#battleMenu.handlePlayerInput('OK');
+
+            //check if the player selected an attack, and update display text
+            if (this.#battleMenu.selectedAttack === undefined) {
+                return;
+            }
+            console.log(`Player selected the following move: ${this.#battleMenu.selectedAttack}`);
+            this.#battleMenu.hideMsAttackSubMenu();
+            this.#battleMenu.updateInfoPaneMessageAndWaitForInput(['You attacks the enemy'], () => {
+                this.#battleMenu.showMainBattleMenu();
+            });
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.#cursorKeys.shift)) {
-            this.#battleMenue.handlePlayerInput('CANCEL');
+            this.#battleMenu.handlePlayerInput('CANCEL');
             return;
         }
 
@@ -79,7 +88,7 @@ export class BattleScene extends Phaser.Scene{
         }
 
         if (selectDirection !== DIRECTION.NONE) {
-            this.#battleMenue.handlePlayerInput(selectDirection);
+            this.#battleMenu.handlePlayerInput(selectDirection);
         }
     }
 

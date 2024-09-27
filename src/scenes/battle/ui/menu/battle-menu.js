@@ -36,6 +36,14 @@ export class BattleMenu {
     #selectAttackMenuOpt;
     /** @type {import("./battle-menu-options.js").ActiveBattleMenu} */
     #activeBattleMenu;
+    /** @type {string[]} */
+    #queuedInfoPanelMessage;
+    /** @type {() => void | undefined} */
+    #queuedInfoPanelCallBack;
+    /** @type {boolean} */
+    #waitingForPlayerInput;
+    /** @type {number | undefined} */
+    #selectedAttackIndex;
 
     /**
      * 
@@ -46,9 +54,21 @@ export class BattleMenu {
         this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_MAIN;
         this.#selectBattleMenuOpt = BATTLE_MENU_OPTION.FIGHT;
         this.#selectAttackMenuOpt = ATTACK_MOVE_OPT.MOVE_1;
+        this.#queuedInfoPanelMessage = [];
+        this.#queuedInfoPanelCallBack = undefined;
+        this.#waitingForPlayerInput = false;
+        this.#selectedAttackIndex = undefined;
         this.#mainInfoPane();
         this.#createMainBattleMenu();
         this.#createMsAttackSubMenu();
+    }
+
+    /** @type {number | undefined} */
+    get selectedAttack() {
+        if (this.#activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
+            return this.#selectedAttackIndex;
+        }
+        return undefined;
     }
 
     showMainBattleMenu() {
@@ -60,6 +80,7 @@ export class BattleMenu {
 
         this.#selectBattleMenuOpt = BATTLE_MENU_OPTION.FIGHT;
         this.#mainBattleMenuCursorPhaserImgGameObj.setPosition(BATTLE_MENU_CURSOR_POS.x, BATTLE_MENU_CURSOR_POS.y);
+        this.#selectedAttackIndex = undefined;
     }
 
     hideMainBattleMenu() {
@@ -81,13 +102,26 @@ export class BattleMenu {
      * @param {import("../../../../common/direction.js").Direction|'OK'|'CANCEL'} input
      */
     handlePlayerInput(input) {
-        console.log(input);
+        if (this.#waitingForPlayerInput && (input === 'CANCEL' || input === 'OK')) {
+            this.#updateInfoPaneWithMessage();
+            return;
+        }
+
         if (input === 'CANCEL') {
-            this.hideMsAttackSubMenu();
-            this.showMainBattleMenu();
+            this.#swtichToMainBattleMenu();
             return;
         }
         if (input === 'OK') {
+            if (this.#activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MAIN) {
+                this.#handlePlayerChooseMainBattleOpt();
+                return;
+            }
+
+            if (this.#activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
+                this.#handlePlayerChooseAttack();
+
+                return;
+            }
             this.hideMainBattleMenu();
             this.showMsAttackSubMenu();
             return;
@@ -98,6 +132,37 @@ export class BattleMenu {
         this.#updateSelectedMoveOptFromInput(input);
         this.#moveMoveSelectBattleMenuCursor();
 
+    }
+
+    /**
+     * 
+     * @param {string[]} messages 
+     * @param {() => void} [callback]
+     */
+    updateInfoPaneMessageAndWaitForInput(messages, callback) {
+        this.#queuedInfoPanelCallBack = callback;
+        this.#queuedInfoPanelMessage = messages;
+
+        this.#updateInfoPaneWithMessage();
+    }
+
+    #updateInfoPaneWithMessage() {
+        this.#waitingForPlayerInput = false;
+        this.#battleTextGameObjLine1.setText('').setAlpha(1);
+
+        //check if all message have been displayed from the queue and call the callback
+        if (this.#queuedInfoPanelMessage.length ===0) {
+            if (this.#queuedInfoPanelCallBack) {
+                this.#queuedInfoPanelCallBack();
+                this.#queuedInfoPanelCallBack = undefined;
+            }
+            return;
+        }
+
+        //get first message from queue and animate message
+        const messageToDisplay = this.#queuedInfoPanelMessage.shift();
+        this.#battleTextGameObjLine1.setText(messageToDisplay);
+        this.#waitingForPlayerInput = true;
     }
 
     //render out the main info and sub info panes
@@ -330,5 +395,67 @@ export class BattleMenu {
                 exhaustiveGuard(this.#selectAttackMenuOpt);
         }
 
+    }
+
+    #swtichToMainBattleMenu () {
+        this.hideMsAttackSubMenu();
+        this.showMainBattleMenu();
+    }
+
+    #handlePlayerChooseMainBattleOpt() {
+        this.hideMainBattleMenu();
+
+        if (this.#selectBattleMenuOpt === BATTLE_MENU_OPTION.FIGHT) {
+            this.showMsAttackSubMenu();
+            return;
+        }
+
+        if (this.#selectBattleMenuOpt === BATTLE_MENU_OPTION.ITEM) {
+            /* 
+                for the time being, we will display text about the player having no items
+                and allow the player to navigate back to the main menu
+            */
+            this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_ITEM;
+            this.updateInfoPaneMessageAndWaitForInput(['Your bag is empty...'], () =>{
+                this.#swtichToMainBattleMenu();
+            })
+            return;
+        }
+
+        if (this.#selectBattleMenuOpt === BATTLE_MENU_OPTION.RUN) {
+            /* 
+                for the time being, we will display text about the player fail to run
+                and allow the player to navigate back to the main menu
+            */
+                this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_RUN;
+            this.updateInfoPaneMessageAndWaitForInput(['You fail to run away...'], () =>{
+                this.#swtichToMainBattleMenu();
+            })
+            return;
+        }
+
+        exhaustiveGuard(this.#selectBattleMenuOpt)
+    }
+
+    #handlePlayerChooseAttack() {
+        let selectedMoveIndex = 0;
+        switch (this.#selectAttackMenuOpt) {
+            case ATTACK_MOVE_OPT.MOVE_1:
+                selectedMoveIndex = 0;
+                break;
+            case ATTACK_MOVE_OPT.MOVE_2:
+                selectedMoveIndex = 1;
+                break;
+            case ATTACK_MOVE_OPT.MOVE_3:
+                selectedMoveIndex = 2;
+                break;
+            case ATTACK_MOVE_OPT.MOVE_4:
+                selectedMoveIndex = 3;
+                break;
+            default:
+                exhaustiveGuard(this.#selectAttackMenuOpt);
+        }
+
+        this.#selectedAttackIndex = selectedMoveIndex;
     }
 }
