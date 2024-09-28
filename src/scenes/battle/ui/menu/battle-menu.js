@@ -1,5 +1,5 @@
 import Phaser from "../../../../lib/phaser.js";
-import { MONSTER_ASSET_KEYS, UI_ASSET_KEYS } from "../../../../assets/asset-keys.js";
+import { UI_ASSET_KEYS } from "../../../../assets/asset-keys.js";
 import { DIRECTION } from "../../../../common/direction.js";
 import { exhaustiveGuard } from "../../../../utils/guard.js";
 import { ACTIVE_BATTLE_MENU, ATTACK_MOVE_OPT, BATTLE_MENU_OPTION } from "./battle-menu-options.js";

@@ -10,6 +10,12 @@ export class HealthBar {
     #fullWidth
     /** @type {number} */
     #scaleY
+    /** @type {Phaser.GameObjects.Image} */
+    #leftCap
+    /** @type {Phaser.GameObjects.Image} */
+    #midCap
+    /** @type {Phaser.GameObjects.Image} */
+    #rightCap
 
     /**
      * 
@@ -23,6 +29,7 @@ export class HealthBar {
         this.#scaleY = 0.7;
         this.#healthBarContainer = this.#scene.add.container(x, y, []);
         this.#createHPImages(x, y);
+        this.#setMeterPercentage(1);
     }
 
     get container() {
@@ -36,11 +43,16 @@ export class HealthBar {
      * @returns {void}
      */
     #createHPImages(x,y) {
-        const leftCap = this.#scene.add.image(x, y, HEALTH_BAR_ASSET_KEYS.LEFT_CAP).setOrigin(0,0.5).setScale(1, this.#scaleY);
-        const midCap = this.#scene.add.image(leftCap.x + leftCap.width, y, HEALTH_BAR_ASSET_KEYS.MIDDLE).setOrigin(0,0.5).setScale(1, this.#scaleY);
-        midCap.displayWidth = 360;
-        const rightCap = this.#scene.add.image(midCap.x + midCap.displayWidth, y, HEALTH_BAR_ASSET_KEYS.RIGHT_CAP).setOrigin(0,0.5).setScale(1, this.#scaleY);
+        this.#leftCap = this.#scene.add.image(x, y, HEALTH_BAR_ASSET_KEYS.LEFT_CAP).setOrigin(0,0.5).setScale(1, this.#scaleY);
+        this.#midCap = this.#scene.add.image(this.#leftCap.x + this.#leftCap.width, y, HEALTH_BAR_ASSET_KEYS.MIDDLE).setOrigin(0,0.5).setScale(1, this.#scaleY);
+        this.#rightCap = this.#scene.add.image(this.#midCap.x + this.#midCap.displayWidth, y, HEALTH_BAR_ASSET_KEYS.RIGHT_CAP).setOrigin(0,0.5).setScale(1, this.#scaleY);
         
-        this.#healthBarContainer.add([leftCap, midCap, rightCap]);
+        this.#healthBarContainer.add([this.#leftCap, this.#midCap, this.#rightCap]);
+    }
+
+    #setMeterPercentage(percent = 1) {
+        const width =this.#fullWidth * percent;
+        this.#midCap.displayWidth = width;
+        this.#rightCap.x = this.#midCap.x + this.#midCap.displayWidth;
     }
 }
