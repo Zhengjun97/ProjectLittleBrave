@@ -15,6 +15,9 @@ export const HEALTH_BAR_ASSET_KEYS = Object.freeze({
     LEFT_CAP: 'LEFT_CAP',
     RIGHT_CAP: 'RIGHT_CAP',
     MIDDLE: 'MIDDLE',
+    LEFT_CAP_SHADOW: 'LEFT_CAP_SHADOW',
+    RIGHT_CAP_SHADOW: 'RIGHT_CAP_SHADOW',
+    MIDDLE_SHADOW: 'MIDDLE_SHADOW',
 });
 
 export const UI_ASSET_KEYS = Object.freeze({

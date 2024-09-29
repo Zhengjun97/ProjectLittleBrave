@@ -33,20 +33,22 @@ export class BattleScene extends Phaser.Scene{
         this.add.image(256,316,MONSTER_ASSET_KEYS.IGUANIGNITE,(0)).setScale(2);
 
         //render out the player HP bar
+        const playerHealthBar = new HealthBar(this, 34, 34);
         const playerMsName = this.add.text(30,20,'Main Character', {color: '#7E3D3F', fontSize: '32px'});
         this.add.container(556,318,[this.add.image(0,0,BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0)
             , playerMsName, 
-            new HealthBar(this, 34, 34).container,
+            playerHealthBar.container,
             this.add.text(playerMsName.width + 35,23,'L5', {color: '#ED474B', fontSize: '28px'}),
             this.add.text(30,55,'HP', {color: '#FF6505', fontSize: '24px', fontStyle: 'italic'}),
             this.add.text(443,80,'25/25', {color: '#7E3D3F', fontSize: '16px',}).setOrigin(1,0),
             ]);
 
         //render out the enemy HP bar
+        const enemyHealthBar = new HealthBar(this, 34, 34);
         const enemyMsName = this.add.text(30,20,'Dark Knight', {color: '#7E3D3F', fontSize: '32px'});
         this.add.container(0,0,[this.add.image(0,0,BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0)
             , enemyMsName, 
-            new HealthBar(this, 34, 34).container,
+            enemyHealthBar.container,
             this.add.text(enemyMsName.width + 35,23,'L5', {color: '#ED474B', fontSize: '28px'}),
             this.add.text(30,55,'HP', {color: '#FF6505', fontSize: '24px', fontStyle: 'italic'}),
             ]);
@@ -56,6 +58,13 @@ export class BattleScene extends Phaser.Scene{
         this.#battleMenu.showMainBattleMenu();
 
         this.#cursorKeys = this.input.keyboard.createCursorKeys();
+
+        playerHealthBar.setMeterPercentageAnimated(0.5,{
+            duration: 3000,
+            callback: () =>{
+                console.log('Animation Completed');
+            }
+        });
 
     }
 
