@@ -2,17 +2,20 @@ import { BATTLE_ASSET_KEYS, MONSTER_ASSET_KEYS  } from "../assets/asset-keys.js"
 import { DIRECTION } from "../common/direction.js";
 import Phaser from "../lib/phaser.js";
 import { Background } from "./battle/background.js";
+import { BattleMonster } from "./battle/monsters/battle-monster.js";
 import { BattleMenu } from "./battle/ui/menu/battle-menu.js";
 import { HealthBar } from "./battle/ui/menu/health-bar.js";
 import { SCENE_KEYS } from "./scene-keys.js";
-
-
 
 export class BattleScene extends Phaser.Scene{
     /** @type {BattleMenu} */
     #battleMenu;
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     #cursorKeys;
+
+    /** @type {BattleMonster}*/
+    #activeEnemyMonster;
+
     constructor() {
         super({
             key: SCENE_KEYS.BATTLE_SCENE, //unique key for pharse scene
@@ -29,7 +32,19 @@ export class BattleScene extends Phaser.Scene{
         const background = new Background(this);
         background.showForest();
         //render player and enemy monster
-        this.add.image(768,144,MONSTER_ASSET_KEYS.CARNODUSK,(0)).setFlipX(true).setScale(0.5);
+        this.#activeEnemyMonster = new BattleMonster({
+            scene: this,
+            monsterDetails: {
+                name: MONSTER_ASSET_KEYS.CARNODUSK,
+                assetKey: MONSTER_ASSET_KEYS.CARNODUSK,
+                assetFrame: 0,
+                currentHp: 25,
+                maxHp: 25,
+                attackIds: [],
+                baseAttack: 5
+            }
+        }, {x: 768, y:144})
+        //this.add.image(768,144,MONSTER_ASSET_KEYS.CARNODUSK,(0)).setFlipX(true).setScale(0.5);
         this.add.image(256,316,MONSTER_ASSET_KEYS.IGUANIGNITE,(0)).setScale(2);
 
         //render out the player HP bar
@@ -44,7 +59,8 @@ export class BattleScene extends Phaser.Scene{
             ]);
 
         //render out the enemy HP bar
-        const enemyHealthBar = new HealthBar(this, 34, 34);
+        //const enemyHealthBar = new HealthBar(this, 34, 34);
+        const enemyHealthBar = this.#activeEnemyMonster._healthBar;
         const enemyMsName = this.add.text(30,20,'Dark Knight', {color: '#7E3D3F', fontSize: '32px'});
         this.add.container(0,0,[this.add.image(0,0,BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0)
             , enemyMsName, 
