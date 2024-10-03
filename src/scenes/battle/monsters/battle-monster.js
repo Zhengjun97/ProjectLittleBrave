@@ -98,7 +98,7 @@ takeDamage(damage,callback){
     this._healthBar = new HealthBar(this._scene, 34, 34);
 
     
-    const monsterNameGameText = this._scene.add.text(30,20,'Dark Knight', {color: '#7E3D3F', fontSize: '32px'});
+    const monsterNameGameText = this._scene.add.text(30,20,this.name, {color: '#7E3D3F', fontSize: '32px'});
     
     const healthBarBgImage = this._scene.add.image(0,0,BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0).setScale(1,scaleHealthBarBackgroundImageByY);
     
