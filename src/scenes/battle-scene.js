@@ -1,6 +1,7 @@
 import { BATTLE_ASSET_KEYS, MONSTER_ASSET_KEYS  } from "../assets/asset-keys.js";
 import { DIRECTION } from "../common/direction.js";
 import Phaser from "../lib/phaser.js";
+import { StateMachine } from "../utils/state-machine.js";
 import { Background } from "./battle/background.js";
 import { EnemyBattleMonster } from "./battle/monsters/enemy-battle-monster.js";
 import { PlayerBattleMonster } from "./battle/monsters/player-battle-monster.js";
@@ -19,6 +20,8 @@ export class BattleScene extends Phaser.Scene{
     #activePlayerMonster;
     /** @type {number} */
     #activePlayerAttackIndex;
+    /** @type {StateMachine} */
+    #battleStateMachine
 
     constructor() {
         super({
@@ -70,10 +73,26 @@ export class BattleScene extends Phaser.Scene{
         //render out the main info and sub info panes
         this.#battleMenu = new BattleMenu(this, this.#activePlayerMonster);
         this.#battleMenu.showMainBattleMenu();
+        
+        //create state machine
+        this.#battleStateMachine = new StateMachine('battle', this);
+        this.#battleStateMachine.addState({
+            name: 'INTRO',
+            onEnter: () => {
+                this.time.delayedCall(1000, () => {
+                    this.#battleStateMachine.setState('BATTLE');
+                });
+            },
+        });
+
+        this.#battleStateMachine.addState({
+            name: 'BATTLE',
+        });
+
+        this.#battleStateMachine.setState('INTRO');
 
         this.#cursorKeys = this.input.keyboard.createCursorKeys();
-        //this.#transitionToNextScene();
-
+        
     }
 
     update() {
