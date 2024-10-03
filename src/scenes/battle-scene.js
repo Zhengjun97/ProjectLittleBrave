@@ -13,12 +13,12 @@ export class BattleScene extends Phaser.Scene{
     #battleMenu;
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     #cursorKeys;
-
     /** @type {EnemyBattleMonster}*/
     #activeEnemyMonster;
-    
     /** @type {PlayerBattleMonster}*/
     #activePlayerMonster;
+    /** @type {number} */
+    #activePlayerAttackIndex;
 
     constructor() {
         super({
@@ -29,6 +29,9 @@ export class BattleScene extends Phaser.Scene{
 
     //phaser life cycle events
 
+    init() {
+        this.#activePlayerAttackIndex = -1;
+    }
 
     create() {
         console.log(`[${BattleScene.name}:create] invoked`);
@@ -44,7 +47,7 @@ export class BattleScene extends Phaser.Scene{
                 assetFrame: 0,
                 currentHp: 25,
                 maxHp: 25,
-                attackIds: [],
+                attackIds: [1],
                 baseAttack: 5,
                 currentLevel: 5
             },
@@ -58,21 +61,18 @@ export class BattleScene extends Phaser.Scene{
                 assetFrame: 0,
                 currentHp: 25,
                 maxHp: 25,
-                attackIds: [],
+                attackIds: [2],
                 baseAttack: 5,
                 currentLevel: 5
             },
         });
             
         //render out the main info and sub info panes
-        this.#battleMenu = new BattleMenu(this);
+        this.#battleMenu = new BattleMenu(this, this.#activePlayerMonster);
         this.#battleMenu.showMainBattleMenu();
 
         this.#cursorKeys = this.input.keyboard.createCursorKeys();
 
-        //this is to check if takeDamage function is working or not, may DELETE later
-         this.#activeEnemyMonster.takeDamage(17, ()=>{this.#activePlayerMonster.takeDamage(13);});
-        // console.log(this.#activeEnemyMonster.isFainted);
     }
 
     update() {
@@ -84,11 +84,16 @@ export class BattleScene extends Phaser.Scene{
             if (this.#battleMenu.selectedAttack === undefined) {
                 return;
             }
+        
+            this.#activePlayerAttackIndex = this.#battleMenu.selectedAttack;
+
+            if (!this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex]) {
+                return;
+            }
+
             console.log(`Player selected the following move: ${this.#battleMenu.selectedAttack}`);
             this.#battleMenu.hideMsAttackSubMenu();
-            this.#battleMenu.updateInfoPaneMessageAndWaitForInput(['You attacks the enemy'], () => {
-                this.#battleMenu.showMainBattleMenu();
-            });
+            this.#handleBattleSequence();
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.#cursorKeys.shift)) {
@@ -113,4 +118,34 @@ export class BattleScene extends Phaser.Scene{
         }
     }
 
+    #handleBattleSequence() {
+        // general battle flow
+        // show attack used, brief pause
+        // then play attack animation, brief pause
+        // then play damage animation, brief pause
+        // then play health bar animation, brief pause
+        // then repeat the steps above 
+
+        this.#playerAttack();
+    }
+
+    #playerAttack() {
+        this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`You used ${this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex].name}`], () => {
+            this.time.delayedCall(500, () => {
+                this.#activeEnemyMonster.takeDamage(17, ()=>{
+                    this.#enemyAttack();
+                });
+            });
+        });
+    }
+
+    #enemyAttack() {
+        this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`For Dark Knight ${this.#activeEnemyMonster.attacks[0].name}`], () => {
+            this.time.delayedCall(500, () => {
+                this.#activePlayerMonster.takeDamage(17, ()=>{
+                    this.#battleMenu.showMainBattleMenu();
+                });
+            });
+        });
+    }
 }
