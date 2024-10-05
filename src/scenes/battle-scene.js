@@ -220,7 +220,7 @@ export class BattleScene extends Phaser.Scene{
                 this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`${this.#activeEnemyMonster.name} appeared!`], 
                 () => {
                     // wait for text animation to complete and move to next state
-                    this.time.delayedCall(1200, () => {
+                    this.time.delayedCall(500, () => {
                         this.#battleStateMachine.setState(BATTLE_STATES.BRING_OUT_MONSTER);
                     });
                 });
