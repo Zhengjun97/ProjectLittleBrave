@@ -1,4 +1,4 @@
-import { MONSTER_ASSET_KEYS  } from "../assets/asset-keys.js";
+import { MONSTER_ASSET_KEYS } from "../assets/asset-keys.js";
 import { DIRECTION } from "../common/direction.js";
 import Phaser from "../lib/phaser.js";
 import { StateMachine } from "../utils/state-machine.js";
@@ -20,7 +20,7 @@ const BATTLE_STATES = Object.freeze({
     RUN_ATTEMPT: 'RUN_ATTEMPT',
 });
 
-export class BattleScene extends Phaser.Scene{
+export class BattleScene extends Phaser.Scene {
     /** @type {BattleMenu} */
     #battleMenu;
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
@@ -38,7 +38,7 @@ export class BattleScene extends Phaser.Scene{
         super({
             key: SCENE_KEYS.BATTLE_SCENE, //unique key for pharse scene
         });
-        
+
     }
 
     //phaser life cycle events
@@ -81,15 +81,15 @@ export class BattleScene extends Phaser.Scene{
                 currentLevel: 5
             },
         });
-            
+
         //render out the main info and sub info panes
         this.#battleMenu = new BattleMenu(this, this.#activePlayerMonster);
-        
+
         //create state machine
         this.#createBattleStateMachine();
 
         this.#cursorKeys = this.input.keyboard.createCursorKeys();
-        
+
     }
 
     update() {
@@ -98,9 +98,9 @@ export class BattleScene extends Phaser.Scene{
         const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(this.#cursorKeys.space);
         // litmit input based on the current battle state we are in
         // if we are not in the right battle state, return early and do not process input
-        if (wasSpaceKeyPressed && (this.#battleStateMachine.currentStateName === BATTLE_STATES.PRE_BATTLE_INFO || 
-        this.#battleStateMachine.currentStateName === BATTLE_STATES.POST_ATTACK_CHECK || 
-        this.#battleStateMachine.currentStateName === BATTLE_STATES.RUN_ATTEMPT)) {
+        if (wasSpaceKeyPressed && (this.#battleStateMachine.currentStateName === BATTLE_STATES.PRE_BATTLE_INFO ||
+            this.#battleStateMachine.currentStateName === BATTLE_STATES.POST_ATTACK_CHECK ||
+            this.#battleStateMachine.currentStateName === BATTLE_STATES.RUN_ATTEMPT)) {
             this.#battleMenu.handlePlayerInput('OK');
             return;
         }
@@ -116,7 +116,7 @@ export class BattleScene extends Phaser.Scene{
             if (this.#battleMenu.selectedAttack === undefined) {
                 return;
             }
-        
+
             this.#activePlayerAttackIndex = this.#battleMenu.selectedAttack;
 
             if (!this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex]) {
@@ -153,9 +153,11 @@ export class BattleScene extends Phaser.Scene{
 
     #playerAttack() {
         this.#battleMenu.updateInfoPaneMessageNoInputRequired(`You used ${this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex].name}`, () => {
-            this.time.delayedCall(1200, () => {
-                this.#activeEnemyMonster.takeDamage(this.#activePlayerMonster.baseAttack, ()=>{
-                    this.#enemyAttack();
+            this.time.delayedCall(500, () => {
+                this.#activeEnemyMonster.playTakeDmgAnimation(() => {
+                    this.#activeEnemyMonster.takeDamage(this.#activePlayerMonster.baseAttack, () => {
+                        this.#enemyAttack();
+                    });
                 });
             });
         });
@@ -168,9 +170,11 @@ export class BattleScene extends Phaser.Scene{
         }
 
         this.#battleMenu.updateInfoPaneMessageNoInputRequired(`For ${this.#activeEnemyMonster.name} used ${this.#activeEnemyMonster.attacks[0].name}`, () => {
-            this.time.delayedCall(1200, () => {
-                this.#activePlayerMonster.takeDamage(this.#activeEnemyMonster.baseAttack, ()=>{
-                    this.#battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
+            this.time.delayedCall(500, () => {
+                this.#activePlayerMonster.playTakeDmgAnimation(() => {
+                    this.#activePlayerMonster.takeDamage(this.#activeEnemyMonster.baseAttack, () => {
+                        this.#battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
+                    });
                 });
             });
         });
@@ -178,15 +182,19 @@ export class BattleScene extends Phaser.Scene{
 
     #postBattleSequenceCheck() {
         if (this.#activeEnemyMonster.isFainted) {
-            this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`Wild ${this.#activeEnemyMonster.name} fainted`, 'You have gained some exp'], () => {
-                this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
+            this.#activeEnemyMonster.playDeathAnimation(() => {
+                this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`${this.#activeEnemyMonster.name} fainted`, 'You have gained some exp'], () => {
+                    this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
+                });
             });
             return;
         }
 
         if (this.#activePlayerMonster.isFainted) {
-            this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`${this.#activePlayerMonster.name} fainted`, 'You lose, escaping to safety...'], () => {
-                this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
+            this.#activePlayerMonster.playDeathAnimation(() => {
+                this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`${this.#activePlayerMonster.name} fainted`, 'You lose, escaping to safety...'], () => {
+                    this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
+                });
             });
             return;
         }
@@ -195,7 +203,7 @@ export class BattleScene extends Phaser.Scene{
     }
 
     #transitionToNextScene() {
-        this.cameras.main.fadeOut(600,0,0,0);
+        this.cameras.main.fadeOut(600, 0, 0, 0);
         this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
             this.scene.start(SCENE_KEYS.BATTLE_SCENE);
         });
@@ -217,12 +225,13 @@ export class BattleScene extends Phaser.Scene{
             name: BATTLE_STATES.PRE_BATTLE_INFO,
             onEnter: () => {
                 // wait for enemy monster to appear on the screen and notify player about the monster
-                this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`${this.#activeEnemyMonster.name} appeared!`], 
-                () => {
-                    // wait for text animation to complete and move to next state
-                    this.time.delayedCall(500, () => {
-                        this.#battleStateMachine.setState(BATTLE_STATES.BRING_OUT_MONSTER);
-                    });
+                this.#activeEnemyMonster.playMonsterAppearAnimation(() => {
+                    this.#activeEnemyMonster.playMonsterHealthBarAppearAnimation(() => undefined);
+                    this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`${this.#activeEnemyMonster.name} appeared!`],
+                        () => {
+                            // wait for text animation to complete and move to next state
+                            this.#battleStateMachine.setState(BATTLE_STATES.BRING_OUT_MONSTER);
+                        });
                 });
             },
         });
@@ -231,13 +240,16 @@ export class BattleScene extends Phaser.Scene{
             name: BATTLE_STATES.BRING_OUT_MONSTER,
             onEnter: () => {
                 // wait for player to appear on the screen and notify 
-                this.#battleMenu.updateInfoPaneMessageNoInputRequired(`go ${this.#activePlayerMonster.name}!`, 
-                () => {
-                    // wait for text animation to complete and move to next state
-                    this.time.delayedCall(1200, () => {
-                        this.#battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
+                this.#activePlayerMonster.playMonsterAppearAnimation(() => {
+                    this.#activePlayerMonster.playMonsterHealthBarAppearAnimation(() => undefined);
+                        this.#battleMenu.updateInfoPaneMessageNoInputRequired(`go ${this.#activePlayerMonster.name}!`,
+                            () => {
+                                // wait for text animation to complete and move to next state
+                                this.time.delayedCall(1200, () => {
+                                    this.#battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
+                                });
+                            });
                     });
-                });
             },
         });
 
@@ -288,10 +300,10 @@ export class BattleScene extends Phaser.Scene{
         this.#battleStateMachine.addState({
             name: BATTLE_STATES.RUN_ATTEMPT,
             onEnter: () => {
-                this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`You got away safely!`], 
-                () => {
-                    this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
-                });
+                this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`You got away safely!`],
+                    () => {
+                        this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
+                    });
             },
         });
 
