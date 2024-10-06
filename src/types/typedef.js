@@ -5,6 +5,7 @@ import Phaser from "../lib/phaser.js";
  * @property {Phaser.Scene} scene
  * @property {Monster} monsterDetails
  * @property {number} [scaleHealthBarBackgroundImageByY = 1]
+ * @property {boolean} [skipBattleAnimations=false] used to skip all animation tied to the monster during battle
  */
 
 /**

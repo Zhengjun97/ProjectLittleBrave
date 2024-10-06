@@ -1,5 +1,6 @@
 import { MONSTER_ASSET_KEYS } from "../assets/asset-keys.js";
 import { DIRECTION } from "../common/direction.js";
+import { SKIP_BATTLE_ANIMATIONS } from "../config.js";
 import Phaser from "../lib/phaser.js";
 import { StateMachine } from "../utils/state-machine.js";
 import { Background } from "./battle/background.js";
@@ -65,6 +66,7 @@ export class BattleScene extends Phaser.Scene {
                 baseAttack: 5,
                 currentLevel: 5
             },
+            skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
         });
 
         //render player
@@ -80,6 +82,7 @@ export class BattleScene extends Phaser.Scene {
                 baseAttack: 15,
                 currentLevel: 5
             },
+            skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
         });
 
         //render out the main info and sub info panes
@@ -160,7 +163,7 @@ export class BattleScene extends Phaser.Scene {
                     });
                 });
             });
-        });
+        }, SKIP_BATTLE_ANIMATIONS);
     }
 
     #enemyAttack() {
@@ -177,7 +180,7 @@ export class BattleScene extends Phaser.Scene {
                     });
                 });
             });
-        });
+        }, SKIP_BATTLE_ANIMATIONS);
     }
 
     #postBattleSequenceCheck() {
@@ -185,7 +188,7 @@ export class BattleScene extends Phaser.Scene {
             this.#activeEnemyMonster.playDeathAnimation(() => {
                 this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`${this.#activeEnemyMonster.name} fainted`, 'You have gained some exp'], () => {
                     this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
-                });
+                }, SKIP_BATTLE_ANIMATIONS);
             });
             return;
         }
@@ -194,7 +197,7 @@ export class BattleScene extends Phaser.Scene {
             this.#activePlayerMonster.playDeathAnimation(() => {
                 this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`${this.#activePlayerMonster.name} fainted`, 'You lose, escaping to safety...'], () => {
                     this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
-                });
+                }, SKIP_BATTLE_ANIMATIONS);
             });
             return;
         }
@@ -231,7 +234,7 @@ export class BattleScene extends Phaser.Scene {
                         () => {
                             // wait for text animation to complete and move to next state
                             this.#battleStateMachine.setState(BATTLE_STATES.BRING_OUT_MONSTER);
-                        });
+                        }, SKIP_BATTLE_ANIMATIONS);
                 });
             },
         });
@@ -247,8 +250,8 @@ export class BattleScene extends Phaser.Scene {
                                 // wait for text animation to complete and move to next state
                                 this.time.delayedCall(1200, () => {
                                     this.#battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
-                                });
-                            });
+                                },);
+                            }, SKIP_BATTLE_ANIMATIONS);
                     });
             },
         });
@@ -303,7 +306,7 @@ export class BattleScene extends Phaser.Scene {
                 this.#battleMenu.updateInfoPaneMessageAndWaitForInput([`You got away safely!`],
                     () => {
                         this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
-                    });
+                    }, SKIP_BATTLE_ANIMATIONS);
             },
         });
 

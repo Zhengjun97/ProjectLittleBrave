@@ -6,6 +6,7 @@ import { ACTIVE_BATTLE_MENU, ATTACK_MOVE_OPT, BATTLE_MENU_OPTION } from "./battl
 import { BATTLE_UI_TEXT_STYLE } from "./battle-menu-config.js";
 import { BattleMonster } from "../../monsters/battle-monster.js";
 import { animateText } from "../../../../utils/text-utils.js";
+import { SKIP_BATTLE_ANIMATIONS } from "../../../../config.js";
 
 const BATTLE_MENU_CURSOR_POS = Object.freeze({
     x: 42,
@@ -231,10 +232,7 @@ export class BattleMenu {
             this.#battleTextGameObjLine1.setText(messageToDisplay);
             this.#queueMessageAnimationPlaying = false;
             this.#waitingForPlayerInput = true;
-            if (this.#queuedInfoPanelCallBack) {
-                this.#queuedInfoPanelCallBack();
-                this.#queuedInfoPanelCallBack = undefined;
-            }
+            this.playInputCursorAnimation();
             return;
         }
 
@@ -512,7 +510,7 @@ export class BattleMenu {
             this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_ITEM;
             this.updateInfoPaneMessageAndWaitForInput(['Your bag is empty...'], () => {
                 this.#swtichToMainBattleMenu();
-            })
+            }, SKIP_BATTLE_ANIMATIONS);
             return;
         }
 
@@ -524,7 +522,7 @@ export class BattleMenu {
             this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_RUN;
             this.updateInfoPaneMessageAndWaitForInput(['You fail to run away...'], () => {
                 this.#swtichToMainBattleMenu();
-            })
+            }, SKIP_BATTLE_ANIMATIONS);        
             return;
         }
 
