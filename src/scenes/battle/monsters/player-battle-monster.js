@@ -1,3 +1,4 @@
+import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../../../assets/font-keys.js";
 import { BattleMonster } from "./battle-monster.js";
 
 /**
@@ -27,7 +28,7 @@ export class PlayerBattleMonster extends BattleMonster {
     }
 
     #addHealthBarComponents() {
-        this.#healthBarTextGameObject = this._scene.add.text(443, 80, '', { color: '#7E3D3F', fontSize: '16px', }).setOrigin(1, 0);
+        this.#healthBarTextGameObject = this._scene.add.text(443, 80, '', { fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#7E3D3F', fontSize: '16px', }).setOrigin(1, 0);
 
         this.#setHealthBarText();
         this._phaserHealthBarGameContainer.add(this.#healthBarTextGameObject);
