@@ -1,5 +1,5 @@
 
-import { BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, DATA_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, UI_ASSET_KEYS } from "../assets/asset-keys.js";
+import { ATTACK_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, DATA_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, UI_ASSET_KEYS } from "../assets/asset-keys.js";
 import Phaser from "../lib/phaser.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
@@ -22,6 +22,7 @@ export class PreloadScene extends Phaser.Scene{
         
         const mosterTamerAssetPath = 'assets/images/monster-tamer';
         const kenneysAssetPath = 'assets/images/kenneys-assets';
+        const pimenAssetPath = 'assets/images/pimen';
         
         //battle backgrounds
         this.load.image(BATTLE_BACKGROUND_ASSET_KEYS.FOREST, `${mosterTamerAssetPath}/battle-backgrounds/forest-background.png`);
@@ -48,6 +49,20 @@ export class PreloadScene extends Phaser.Scene{
 
         //load custom font
         this.load.addFile(new WebFontFileLoader(this.load, [KENNEY_FUTURE_NARROW_FONT_NAME]));
+
+        //load attack assets
+        this.load.spritesheet(ATTACK_ASSET_KEYS.ICE_SHARD, `${pimenAssetPath}/ice-attack/active.png`, {
+            frameWidth: 32,
+            frameHeight: 32,
+        });
+        this.load.spritesheet(ATTACK_ASSET_KEYS.ICE_SHARD_START, `${pimenAssetPath}/ice-attack/start.png`, {
+            frameWidth: 32,
+            frameHeight: 32,
+        });
+        this.load.spritesheet(ATTACK_ASSET_KEYS.SLASH, `${pimenAssetPath}/slash.png`, {
+            frameWidth: 48,
+            frameHeight: 48,
+        });
     
 
     }

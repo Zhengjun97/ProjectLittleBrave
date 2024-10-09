@@ -3,6 +3,7 @@ import { DIRECTION } from "../common/direction.js";
 import { SKIP_BATTLE_ANIMATIONS } from "../config.js";
 import Phaser from "../lib/phaser.js";
 import { StateMachine } from "../utils/state-machine.js";
+import { IceShard } from "./battle/attacks/ice-shard.js";
 import { Background } from "./battle/background.js";
 import { EnemyBattleMonster } from "./battle/monsters/enemy-battle-monster.js";
 import { PlayerBattleMonster } from "./battle/monsters/player-battle-monster.js";
@@ -92,6 +93,9 @@ export class BattleScene extends Phaser.Scene {
         this.#createBattleStateMachine();
 
         this.#cursorKeys = this.input.keyboard.createCursorKeys();
+
+        const atk = new IceShard(this, {x: 745, y: 140});
+        atk.playAnimation();
 
     }
 
