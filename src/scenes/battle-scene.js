@@ -95,7 +95,9 @@ export class BattleScene extends Phaser.Scene {
         this.#cursorKeys = this.input.keyboard.createCursorKeys();
 
         const atk = new IceShard(this, {x: 745, y: 140});
-        atk.playAnimation();
+        atk.playAnimation(()=> {
+            atk.playAnimation();
+        });
 
     }
 
