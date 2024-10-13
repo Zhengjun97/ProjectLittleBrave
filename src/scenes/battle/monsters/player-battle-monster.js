@@ -2,7 +2,7 @@ import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../../../assets/font-keys.js";
 import { BattleMonster } from "./battle-monster.js";
 
 /**
- * @type {import("../../../types/typedef").Coordinate}
+ * @type {import("../../../types/typedef.js").Coordinate}
  */
 const PLAYER_POSITION = Object.freeze({
     x: 256,
@@ -13,7 +13,7 @@ export class PlayerBattleMonster extends BattleMonster {
     /**@type {Phaser.GameObjects.Text} */
     #healthBarTextGameObject;
     /**
-     * @param {import("../../../types/typedef").BattleMonsterConfig} config
+     * @param {import("../../../types/typedef.js").BattleMonsterConfig} config
      */
     constructor(config) {
         super(config, PLAYER_POSITION);

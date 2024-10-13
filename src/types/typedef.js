@@ -1,4 +1,5 @@
 import Phaser from "../lib/phaser.js";
+import { ATTACK_KEYS } from "../scenes/battle/attacks/attack-keys.js";
 /**
  * @typedef BattleMonsterConfig
  * @type {Object}
@@ -33,5 +34,5 @@ import Phaser from "../lib/phaser.js";
  * @type {Object}
  * @property {number} id
  * @property {string} name
- * @property {string} animationName
+ * @property {import("../scenes/battle/attacks/attack-keys.js").AttackKeys} animationName
  */
