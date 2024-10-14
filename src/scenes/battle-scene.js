@@ -177,7 +177,7 @@ const BATTLE_STATES = Object.freeze({
       }
   
       this.#battleMenu.updateInfoPaneMessageNoInputRequired(
-        `foe ${this.#activeEnemyMonster.name} used ${this.#activeEnemyMonster.attacks[0].name}`,
+        `for ${this.#activeEnemyMonster.name} used ${this.#activeEnemyMonster.attacks[0].name}`,
         () => {
           this.time.delayedCall(500, () => {
             this.#attackManager.playAttackAnimation(
@@ -201,7 +201,7 @@ const BATTLE_STATES = Object.freeze({
       if (this.#activeEnemyMonster.isFainted) {
         this.#activeEnemyMonster.playDeathAnimation(() => {
           this.#battleMenu.updateInfoPaneMessageAndWaitForInput(
-            [`Wild ${this.#activeEnemyMonster.name} fainted`, 'You have gained some experience'],
+            [`${this.#activeEnemyMonster.name} dead`, 'You have gained some experience'],
             () => {
               this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
             },
@@ -214,7 +214,7 @@ const BATTLE_STATES = Object.freeze({
       if (this.#activePlayerMonster.isFainted) {
         this.#activePlayerMonster.playDeathAnimation(() => {
           this.#battleMenu.updateInfoPaneMessageAndWaitForInput(
-            [`${this.#activePlayerMonster.name} fainted`, 'You have no more monsters, escaping to safety...'],
+            [`${this.#activePlayerMonster.name} dead`, 'You lost, escaping to safety...'],
             () => {
               this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
             },
@@ -257,7 +257,7 @@ const BATTLE_STATES = Object.freeze({
           this.#activeEnemyMonster.playMonsterAppearAnimation(() => {
             this.#activeEnemyMonster.playMonsterHealthBarAppearAnimation(() => undefined);
             this.#battleMenu.updateInfoPaneMessageAndWaitForInput(
-              [`wild ${this.#activeEnemyMonster.name} appeared!`],
+              [`${this.#activeEnemyMonster.name} appeared!`],
               () => {
                 // wait for text animation to complete and move to next state
                 this.#battleStateMachine.setState(BATTLE_STATES.BRING_OUT_MONSTER);
