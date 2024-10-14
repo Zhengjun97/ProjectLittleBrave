@@ -22,7 +22,7 @@ export function createSceneTransition(scene, options){
 
     scene.tweens.add({
         onUpdate: ()=> {
-            g.clear().fillRectShape(rectShape)
+            g.clear().fillRectShape(rectShape);
         },
         delay:400,
         duration: 800,
