@@ -36,3 +36,15 @@ import { ATTACK_KEYS } from "../scenes/battle/attacks/attack-keys.js";
  * @property {string} name
  * @property {import("../scenes/battle/attacks/attack-keys.js").AttackKeys} animationName
  */
+
+/**
+ * @typedef Animation
+ * @type {object}
+ * @property {string} key
+ * @property {number[]} [frames]
+ * @property {number} frameRate
+ * @property {number} repeat
+ * @property {number} delay
+ * @property {boolean} yoyo
+ * @property {string} assetKey
+ */
