@@ -73,6 +73,7 @@ export class PreloadScene extends Phaser.Scene{
         this.load.tilemapTiledJSON(WORLD_ASSET_KEYS.WORLD_MAIN_LEVEL, `assets/data/level.json`);
         this.load.image(WORLD_ASSET_KEYS.WORLD_COLLISION, `${mosterTamerAssetPath}/map/collision.png`);
         this.load.image(WORLD_ASSET_KEYS.WORLD_FOREGROUND, `${mosterTamerAssetPath}/map/level_foreground.png`);
+        this.load.image(WORLD_ASSET_KEYS.WORLD_ENCOUNTER_ZONE, `${mosterTamerAssetPath}/map/encounter.png`);
 
         //load character images
         this.load.spritesheet(CHARACTER_ASSET_KEYS.PLAYER, `${axulArtPath}/character/custom.png`, {
