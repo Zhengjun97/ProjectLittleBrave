@@ -53,14 +53,19 @@ export class Character {
         this._scene = config.scene;
         this._direction = config.direction;
         this._isMoving = false;
-        this._targetPosition = {...config.position};
-        this._previousTargetPosition = {...config.position};
+        this._targetPosition = { ...config.position };
+        this._previousTargetPosition = { ...config.position };
         this._idleFrameConfig = config.idleFrameConfig;
-        this._origin = config.origin ? {...config.origin} : {x:0, y:0};
+        this._origin = config.origin ? { ...config.origin } : { x: 0, y: 0 };
         this._phaserGameObject = this._scene.add
             .sprite(config.position.x, config.position.y, config.assetKey, this._getIdleFrame())
             .setOrigin(this._origin.x, this._origin.y);
         this._spriteGridMovementFinishedCallback = config.spriteGridMovementFinishedCallback;
+    }
+
+    /** @type {Phaser.GameObjects.Sprite} */
+    get sprite() {
+        return this._phaserGameObject;
     }
 
     /** @type {boolean} */
@@ -71,12 +76,12 @@ export class Character {
     get direction() {
         return this._direction;
     }
- 
+
     /**
      * @param {import("../../common/direction.js").Direction} direction
      * @returns {void}
      */
-    moveCharacter(direction){
+    moveCharacter(direction) {
         if (this._isMoving) {
             return;
         }
@@ -123,7 +128,7 @@ export class Character {
      */
     _moveSprite(direction) {
         this._direction = direction;
-        if (this._isBlockingTile ()) {
+        if (this._isBlockingTile()) {
             return;
         }
 
@@ -145,7 +150,7 @@ export class Character {
         }
 
         const updatedPostion = getTargetPositionFromGameObjectPositionAndDirection(this._targetPosition, this._direction);
-        this._previousTargetPosition = {...this._targetPosition};
+        this._previousTargetPosition = { ...this._targetPosition };
         this._targetPosition.x = updatedPostion.x;
         this._targetPosition.y = updatedPostion.y;
 
@@ -165,8 +170,8 @@ export class Character {
             targets: this._phaserGameObject,
             onComplete: () => {
                 this._isMoving = false;
-                this._previousTargetPosition = {...this._targetPosition};
-                if(this._spriteGridMovementFinishedCallback) {
+                this._previousTargetPosition = { ...this._targetPosition };
+                if (this._spriteGridMovementFinishedCallback) {
                     this._spriteGridMovementFinishedCallback();
                 }
             }
