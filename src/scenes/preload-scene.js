@@ -70,7 +70,10 @@ export class PreloadScene extends Phaser.Scene{
 
         //load world assets
         this.load.image(WORLD_ASSET_KEYS.WORLD_BACKGROUND, `${mosterTamerAssetPath}/map/level_background.png`);
-    
+        this.load.tilemapTiledJSON(WORLD_ASSET_KEYS.WORLD_MAIN_LEVEL, `assets/data/level.json`);
+        this.load.image(WORLD_ASSET_KEYS.WORLD_COLLISION, `${mosterTamerAssetPath}/map/collision.png`);
+        this.load.image(WORLD_ASSET_KEYS.WORLD_FOREGROUND, `${mosterTamerAssetPath}/map/level_foreground.png`);
+
         //load character images
         this.load.spritesheet(CHARACTER_ASSET_KEYS.PLAYER, `${axulArtPath}/character/custom.png`, {
             frameWidth: 64,

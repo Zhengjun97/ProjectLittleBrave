@@ -23,6 +23,7 @@ import { exhaustiveGuard } from '../../utils/guard.js';
  * @property {import('../../common/direction.js').Direction} direction
  * @property {() => void} [spriteGridMovementFinishedCallback]
  * @property {CharacterIdleFrameConfig} idleFrameConfig
+ * @property {Phaser.Tilemaps.TilemapLayer} [collisionLayer]
  */
 
 export class Character {
@@ -44,6 +45,8 @@ export class Character {
     _idleFrameConfig;
     /** @protected @type {import('../../types/typedef.js').Coordinate}*/
     _origin;
+    /** @protected @type {Phaser.Tilemaps.TilemapLayer | undefined} */
+    _collisionLayer;
 
 
     /**
@@ -57,6 +60,7 @@ export class Character {
         this._previousTargetPosition = { ...config.position };
         this._idleFrameConfig = config.idleFrameConfig;
         this._origin = config.origin ? { ...config.origin } : { x: 0, y: 0 };
+        this._collisionLayer = config.collisionLayer;
         this._phaserGameObject = this._scene.add
             .sprite(config.position.x, config.position.y, config.assetKey, this._getIdleFrame())
             .setOrigin(this._origin.x, this._origin.y);
@@ -140,8 +144,11 @@ export class Character {
         if (this._direction === DIRECTION.NONE) {
             return;
         }
-        //to do: add in collision logic
-        return false;
+        
+        const targetPosition = {...this._targetPosition};
+        const updatedPostion = getTargetPositionFromGameObjectPositionAndDirection(targetPosition, this._direction);
+
+        return this.#doesPositionCollideWithCollisionLayer(updatedPostion);
     }
 
     #handleSpriteMovement() {
@@ -176,5 +183,21 @@ export class Character {
                 }
             }
         });
+    }
+
+    /**
+     * 
+     * @param {import('../../types/typedef.js').Coordinate} position 
+     * @returns {boolean}
+     */
+    #doesPositionCollideWithCollisionLayer(position) {
+        if (!this._collisionLayer) {
+            return false;
+        }
+
+        const {x, y} = position;
+        const tile = this._collisionLayer.getTileAtWorldXY(x, y, true);
+        //console.log(tile);
+        return tile.index !== -1;
     }
 }
