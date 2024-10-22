@@ -4,21 +4,31 @@ import { TILE_SIZE, TILED_COLLISION_LAYER_ALPHA } from "../config.js";
 import Phaser from "../lib/phaser.js";
 import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
+import { getTargetPositionFromGameObjectPositionAndDirection } from "../utils/grid-utils.js";
+import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from "../utils/text-utils.js";
 import { Player } from "../world/character/player.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 
 
-
+/**
+ * @typedef TiledObjectProperty
+ * @type {object}
+ * @property {string} name
+ * @property {string} type
+ * @property {any} value
+ */
 
 export class WorldScene extends Phaser.Scene {
     /**@type {Player} */
     #player;
-     /**@type {Controls} */
+    /**@type {Controls} */
     #controls;
     /**@type {Phaser.Tilemaps.TilemapLayer} */
     #encounterLayer;
-     /**@type {boolean} */
+    /**@type {boolean} */
     #monsterEncountered;
+    /**@type {Phaser.Tilemaps.ObjectLayer} */
+    #signLayer;
 
     constructor() {
         super({
@@ -38,8 +48,11 @@ export class WorldScene extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, 1280, 2176);
         this.cameras.main.setZoom(0.8);
         this.cameras.main.centerOn(x, y);
-
+        
+        // create map and collision layer
         const map = this.make.tilemap({key: WORLD_ASSET_KEYS.WORLD_MAIN_LEVEL});
+        // the first parameter is the name of the tileset in tiled and the seconde parameter is the key
+        // of the tileset image used when loading the file in preload
         const collisionTiles = map.addTilesetImage('collision', WORLD_ASSET_KEYS.WORLD_COLLISION);
         if (!collisionTiles) {
             console.log(`[${WorldScene.name}:create] encountered erro while creating collision tiles using data from tiled`);
@@ -51,6 +64,14 @@ export class WorldScene extends Phaser.Scene {
             return;
         }
         collisionLayer.setAlpha(TILED_COLLISION_LAYER_ALPHA).setDepth(2);
+
+        // create interactive layer
+        this.#signLayer = map.getObjectLayer('Sign');
+        if (!this.#signLayer) {
+            console.log(`[${WorldScene.name}:create] encountered erro while creating sign layer using data from tiled`);
+            return;
+        }
+        //console.log(this.#signLayer);
 
         const encounterTiles = map.addTilesetImage('encounter', WORLD_ASSET_KEYS.WORLD_ENCOUNTER_ZONE);
         if (!encounterTiles) {
@@ -97,7 +118,41 @@ export class WorldScene extends Phaser.Scene {
             this.#player.moveCharacter(selectedDirection);
         }
 
+        if (this.#controls.wasSpaceKeyPressed() && !this.#player.isMoving) {
+            this.#handlePlayerInteraction();
+        } 
+
         this.#player.update(time);
+    }
+
+    #handlePlayerInteraction() {
+        console.log('start of interaction check');
+
+        const {x, y} = this.#player.sprite;
+        const targetPosition = getTargetPositionFromGameObjectPositionAndDirection({x,y}, this.#player.direction);
+        const nearbySign = this.#signLayer.objects.find((object) => {
+            if (!object.x || !object.y) {
+                return;
+            }
+
+            return object.x === targetPosition.x && object.y - TILE_SIZE === targetPosition.y;
+
+        });
+
+        if (nearbySign) {
+            /** @type {TiledObjectProperty []} */
+            const props = nearbySign.properties;
+            /** @type {string} */
+            const msg = props.find((props) => props.name === 'message')?.value;
+            
+            const usePlaceholderText = this.#player.direction !== DIRECTION.UP;
+            let textToShow = CANNOT_READ_SIGN_TEXT;
+            if (!usePlaceholderText) {
+                textToShow = msg || SAMPLE_TEXT;
+            }
+            console.log(textToShow);
+            return;
+        }
     }
 
     #handlePlayerMovementUpdate() {
