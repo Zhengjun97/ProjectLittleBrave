@@ -7,6 +7,7 @@ import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { getTargetPositionFromGameObjectPositionAndDirection } from "../utils/grid-utils.js";
 import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from "../utils/text-utils.js";
 import { Player } from "../world/character/player.js";
+import { DialogUi } from "../world/dialog-ui.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 
 
@@ -29,6 +30,8 @@ export class WorldScene extends Phaser.Scene {
     #monsterEncountered;
     /**@type {Phaser.Tilemaps.ObjectLayer} */
     #signLayer;
+    /**@type {DialogUi} */
+    #dialogUi;
 
     constructor() {
         super({
@@ -104,9 +107,17 @@ export class WorldScene extends Phaser.Scene {
 
         this.#controls = new Controls(this);
 
+        //create dialog ui
+        this.#dialogUi = new DialogUi(this,1280);
+
         this.cameras.main.fadeIn(1000, 0, 0, 0);
     }
 
+    /**
+     * 
+     * @param {DOMHighResTimeStamp} time 
+     * @returns {void}
+     */
     update(time){
         if (this.#monsterEncountered) {
             this.#player.update(time);
@@ -126,6 +137,13 @@ export class WorldScene extends Phaser.Scene {
     }
 
     #handlePlayerInteraction() {
+        if(this.#dialogUi.isVisible){
+            this.#dialogUi.hideDialogModal();
+            return;
+        }
+
+        this.#dialogUi.showDialogModal();
+
         console.log('start of interaction check');
 
         const {x, y} = this.#player.sprite;

@@ -81,7 +81,7 @@ export class BattleMenu {
         this.#mainInfoPane();
         this.#createMainBattleMenu();
         this.#createMsAttackSubMenu();
-        this.#creatPlayerInputCursor();
+        this.#createPlayerInputCursor();
     }
 
     /** @type {number | undefined} */
@@ -551,7 +551,7 @@ export class BattleMenu {
         this.#selectedAttackIndex = selectedMoveIndex;
     }
 
-    #creatPlayerInputCursor() {
+    #createPlayerInputCursor() {
         this.#userInputCursorPhaserImageGameObject = this.#scene.add.image(0, 0, UI_ASSET_KEYS.CURSOR);
         this.#userInputCursorPhaserImageGameObject.setAngle(90).setScale(2.5, 1.25);
         this.#userInputCursorPhaserImageGameObject.setAlpha(0);
