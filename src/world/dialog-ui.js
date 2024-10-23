@@ -1,6 +1,6 @@
 import Phaser from "../lib/phaser.js"
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
-import { CANNOT_READ_SIGN_TEXT } from "../utils/text-utils.js";
+import { CANNOT_READ_SIGN_TEXT, animateText } from "../utils/text-utils.js";
 import { UI_ASSET_KEYS } from "../assets/asset-keys.js";
 
 /** @tpye {Phaser.Type.GameObjects.Text.TextStyle} */
@@ -58,7 +58,24 @@ export class DialogUi{
         return this.#isVisible;
     }
 
-    showDialogModal(){
+    /**@type {boolean} */
+    get isAnimationPlaying(){
+        return this.#textAnimationPlaying;
+    }
+
+     /**@type {boolean} */
+     get moreMessagesToShow(){
+        return this.#messagesToShow.length > 0;
+    }
+
+    /**
+     * 
+     * @param {string []} messages 
+     * @returns {void}
+     */
+    showDialogModal(messages){
+        this.#messagesToShow = [...messages];
+
         const {x,bottom} = this.#scene.cameras.main.worldView;
         const startX = x + this.#padding;
         const startY = bottom - this.#height - this.#padding / 4;
@@ -67,15 +84,41 @@ export class DialogUi{
         this.#userInputCursorTween.restart();
         this.#container.setAlpha(1);
         this.#isVisible = true;
+
+        this.showNextMessage();
     }
 
+    /**
+     * @returns {void}
+     */
+    showNextMessage(){
+        if(this.#messagesToShow.length === 0){
+            return; 
+        }
+
+        this.#uiText.setText('').setAlpha(1);
+
+        animateText(this.#scene, this.#uiText, this.#messagesToShow.shift(), {
+            delay: 50,
+            callback: () => {
+                this.#textAnimationPlaying = false;
+            },
+        });
+        this.#textAnimationPlaying = true;
+    }
+
+    /**
+     * @returns {void}
+     */
     hideDialogModal(){
         this.#container.setAlpha(0);
         this.#userInputCursorTween.pause();
         this.#isVisible = false;
     }
 
-
+    /**
+     * @returns {void}
+     */
     #createPlayerInputCursor() {
         const y = this.#height - 24;
         this.#userInputCursor = this.#scene.add.image(this.#width - 16, y, UI_ASSET_KEYS.CURSOR);

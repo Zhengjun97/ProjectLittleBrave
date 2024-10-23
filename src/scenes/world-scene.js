@@ -125,7 +125,7 @@ export class WorldScene extends Phaser.Scene {
         }
         
         const selectedDirection = this.#controls.getDirectionPressedDown();
-        if(selectedDirection !== DIRECTION.NONE){
+        if(selectedDirection !== DIRECTION.NONE && !this.#isPlayerInputLocked()){
             this.#player.moveCharacter(selectedDirection);
         }
 
@@ -137,12 +137,19 @@ export class WorldScene extends Phaser.Scene {
     }
 
     #handlePlayerInteraction() {
-        if(this.#dialogUi.isVisible){
+        if(this.#dialogUi.isAnimationPlaying){
+            return;
+        }
+
+        if(this.#dialogUi.isVisible && !this.#dialogUi.moreMessagesToShow){
             this.#dialogUi.hideDialogModal();
             return;
         }
 
-        this.#dialogUi.showDialogModal();
+        if(this.#dialogUi.isVisible && this.#dialogUi.moreMessagesToShow){
+            this.#dialogUi.showNextMessage();
+            return;
+        }
 
         console.log('start of interaction check');
 
@@ -168,7 +175,8 @@ export class WorldScene extends Phaser.Scene {
             if (!usePlaceholderText) {
                 textToShow = msg || SAMPLE_TEXT;
             }
-            console.log(textToShow);
+            
+            this.#dialogUi.showDialogModal([textToShow]);
             return;
         }
     }
@@ -198,5 +206,9 @@ export class WorldScene extends Phaser.Scene {
                 this.scene.start(SCENE_KEYS.BATTLE_SCENE);
             });
         }
+    }
+
+    #isPlayerInputLocked(){
+        return this.#dialogUi.isVisible;
     }
 }
