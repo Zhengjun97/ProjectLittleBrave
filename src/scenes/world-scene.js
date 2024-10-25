@@ -285,6 +285,21 @@ export class WorldScene extends Phaser.Scene {
                 return;
             }
 
+            //get the path objects for this npc
+            const pathObjects = layer.objects.filter((obj) => {
+                return obj.type === CUSTOM_TILED_TYPES.NPC_PATH;
+            });
+            const npcPath = {
+                0: { x: npcObject.x, y: npcObject.y - TILE_SIZE }
+            };
+            pathObjects.forEach((obj) => {
+                if (obj.x === undefined || obj.y === undefined) {
+                    return;
+                }
+                npcPath[parseInt(obj.name, 10)] = { x: obj.x, y: obj.y - TILE_SIZE };
+            });
+            console.log(npcPath);
+
             /** @type {string} */
             const npcFrame = 
             /** @type {TiledObjectProperty[]}*/(npcObject.properties).find((property) => property.name === TILED_NPC_PROPERTY.FRAME)?.value || '0';
@@ -294,6 +309,9 @@ export class WorldScene extends Phaser.Scene {
             /** @type {TiledObjectProperty[]}*/(npcObject.properties).find((property) => property.name === TILED_NPC_PROPERTY.MESSAGES)?.value || '0';
             const npcMessages = npcMessagesString.split('::');
 
+            const npcMovement = 
+            /** @type {TiledObjectProperty[]}*/(npcObject.properties).find((property) => property.name === TILED_NPC_PROPERTY.MOVEMENT_PATTERN)?.value || 'IDLE';
+
             //in tiled, the x vaule is how far the object starts from the left, and the y is the bottom of tiled
             const npc = new NPC({
                 scene: this,
@@ -301,6 +319,8 @@ export class WorldScene extends Phaser.Scene {
                 direction: DIRECTION.DOWN,
                 frame: parseInt(npcFrame, 10),
                 messages: npcMessages,
+                npcPath,
+                movementPattern: npcMovement,
             })
             this.#npcs.push(npc);
         });
