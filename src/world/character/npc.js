@@ -3,14 +3,22 @@ import { DIRECTION } from "../../common/direction.js";
 import { exhaustiveGuard } from "../../utils/guard.js";
 import { Character } from "./character.js";
 
+/**
+ * @typedef NPCConfigProps
+ * @type {object}
+ * @property {number} frame
+ * @property {string[]} messages
+ */
 
 /**
- * @typedef {Omit<import('./character').CharacterConfig, 'assetKey' | 'idleFrameConfig'> & {frame: number, messages: string[]}} NPCConfig
+ * @typedef {Omit<import('./character').CharacterConfig, 'assetKey' | 'idleFrameConfig'> & NPCConfigProps} NPCConfig
  */
 
 export class NPC extends Character {
     /** @type {string[]} */
     #messages;
+    /** @type {boolean} */
+    #talkingToPlayer;
     /**
      * @param {NPCConfig} config
      */
@@ -29,12 +37,25 @@ export class NPC extends Character {
       });
       
       this.#messages = config.messages;
+      this.#talkingToPlayer = false;
       this._phaserGameObject.setScale(4);
     }
 
     /** @type {string[]} */
     get messages() {
         return [...this.#messages];
+    }
+
+    /** @type {boolean} */
+    get isTalkingToPlayer() {
+        return this.#talkingToPlayer;
+    }
+
+    /**
+     * @param {boolean} val
+     */
+    set isTalkingToPlayer(val) {
+        this.#talkingToPlayer = val;
     }
 
     /**

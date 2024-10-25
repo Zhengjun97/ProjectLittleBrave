@@ -50,8 +50,10 @@ export class WorldScene extends Phaser.Scene {
     #signLayer;
     /**@type {DialogUi} */
     #dialogUi;
-    // /**@type {NPC []} */
+    /**@type {NPC []} */
     #npcs;
+    /**@type {NPC | undefined} */
+    #npcPlayerIsInteractingWith;
 
     constructor() {
         super({
@@ -60,7 +62,9 @@ export class WorldScene extends Phaser.Scene {
     }
 
     init() {
+        console.log(`[${WorldScene.name}:init] invoked`)
         this.#monsterEncountered = false;
+        this.#npcPlayerIsInteractingWith = undefined;
     }
 
     create() {
@@ -178,6 +182,10 @@ export class WorldScene extends Phaser.Scene {
 
         if (this.#dialogUi.isVisible && !this.#dialogUi.moreMessagesToShow) {
             this.#dialogUi.hideDialogModal();
+            if (this.#npcPlayerIsInteractingWith) {
+                this.#npcPlayerIsInteractingWith.isTalkingToPlayer = false;
+                this.#npcPlayerIsInteractingWith = undefined;
+            }
             return;
         }
 
@@ -220,6 +228,8 @@ export class WorldScene extends Phaser.Scene {
         });
         if (nearbyNpc) {
             nearbyNpc.facePlayer(this.#player.direction);
+            nearbyNpc.isTalkingToPlayer = true;
+            this.#npcPlayerIsInteractingWith = nearbyNpc;
             this.#dialogUi.showDialogModal(nearbyNpc.messages);
             //console.log('talking to npc')
         }
