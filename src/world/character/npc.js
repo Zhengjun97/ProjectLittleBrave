@@ -5,10 +5,12 @@ import { Character } from "./character.js";
 
 
 /**
- * @typedef {Omit<import('./character').CharacterConfig, 'assetKey' | 'idleFrameConfig'> & {frame: number}} NPCConfig
+ * @typedef {Omit<import('./character').CharacterConfig, 'assetKey' | 'idleFrameConfig'> & {frame: number, messages: string[]}} NPCConfig
  */
 
 export class NPC extends Character {
+    /** @type {string[]} */
+    #messages;
     /**
      * @param {NPCConfig} config
      */
@@ -25,8 +27,14 @@ export class NPC extends Character {
           RIGHT: config.frame + 2,
         },
       });
-  
+      
+      this.#messages = config.messages;
       this._phaserGameObject.setScale(4);
+    }
+
+    /** @type {string[]} */
+    get messages() {
+        return [...this.#messages];
     }
 
     /**

@@ -23,19 +23,19 @@ import { SCENE_KEYS } from "./scene-keys.js";
 
 const TILED_SIGN_PROPERTY = Object.freeze({
     MESSAGE: 'message',
-  });
+});
 
-  const CUSTOM_TILED_TYPES = Object.freeze({
+const CUSTOM_TILED_TYPES = Object.freeze({
     NPC: 'npc',
     NPC_PATH: 'npc_path',
-  });
+});
 
-  const TILED_NPC_PROPERTY = Object.freeze({
+const TILED_NPC_PROPERTY = Object.freeze({
     IS_SPAWN_POINT: 'is_spawn_point',
     MOVEMENT_PATTERN: 'movement_pattern',
-    MESSAGE: 'message',
+    MESSAGES: 'messages',
     FRAME: 'frame',
-  });
+});
 
 export class WorldScene extends Phaser.Scene {
     /**@type {Player} */
@@ -55,7 +55,7 @@ export class WorldScene extends Phaser.Scene {
 
     constructor() {
         super({
-            key: SCENE_KEYS.WORLD_SCENE, 
+            key: SCENE_KEYS.WORLD_SCENE,
         });
     }
 
@@ -71,9 +71,9 @@ export class WorldScene extends Phaser.Scene {
         this.cameras.main.setBounds(0, 0, 1280, 2176);
         this.cameras.main.setZoom(0.8);
         this.cameras.main.centerOn(x, y);
-        
+
         // create map and collision layer
-        const map = this.make.tilemap({key: WORLD_ASSET_KEYS.WORLD_MAIN_LEVEL});
+        const map = this.make.tilemap({ key: WORLD_ASSET_KEYS.WORLD_MAIN_LEVEL });
         // the first parameter is the name of the tileset in tiled and the seconde parameter is the key
         // of the tileset image used when loading the file in preload
         const collisionTiles = map.addTilesetImage('collision', WORLD_ASSET_KEYS.WORLD_COLLISION);
@@ -112,10 +112,7 @@ export class WorldScene extends Phaser.Scene {
         this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_BACKGROUND, 0).setOrigin(0);
 
         //create NPCs
-       this.#createNPCs(map);
-
-
-
+        this.#createNPCs(map);
 
 
         this.#player = new Player({
@@ -131,17 +128,17 @@ export class WorldScene extends Phaser.Scene {
 
         this.cameras.main.startFollow(this.#player.sprite);
 
-    // update our collisions with npcs
-    this.#npcs.forEach((npc) => {
-      npc.addCharacterToCheckForCollisionsWith(this.#player);
-    });
+        // update our collisions with npcs
+        this.#npcs.forEach((npc) => {
+            npc.addCharacterToCheckForCollisionsWith(this.#player);
+        });
 
         this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_FOREGROUND, 0).setOrigin(0);
 
         this.#controls = new Controls(this);
 
         //create dialog ui
-        this.#dialogUi = new DialogUi(this,1280);
+        this.#dialogUi = new DialogUi(this, 1280);
 
         this.cameras.main.fadeIn(1000, 0, 0, 0);
     }
@@ -151,48 +148,48 @@ export class WorldScene extends Phaser.Scene {
      * @param {DOMHighResTimeStamp} time 
      * @returns {void}
      */
-    update(time){
+    update(time) {
         if (this.#monsterEncountered) {
             this.#player.update(time);
             return;
         }
-        
+
         const selectedDirection = this.#controls.getDirectionPressedDown();
-        if(selectedDirection !== DIRECTION.NONE && !this.#isPlayerInputLocked()){
+        if (selectedDirection !== DIRECTION.NONE && !this.#isPlayerInputLocked()) {
             this.#player.moveCharacter(selectedDirection);
         }
 
         if (this.#controls.wasSpaceKeyPressed() && !this.#player.isMoving) {
             this.#handlePlayerInteraction();
-        } 
+        }
 
         this.#player.update(time);
 
 
         this.#npcs.forEach((npc) => {
             npc.update(time);
-        }); 
+        });
     }
 
     #handlePlayerInteraction() {
-        if(this.#dialogUi.isAnimationPlaying){
+        if (this.#dialogUi.isAnimationPlaying) {
             return;
         }
 
-        if(this.#dialogUi.isVisible && !this.#dialogUi.moreMessagesToShow){
+        if (this.#dialogUi.isVisible && !this.#dialogUi.moreMessagesToShow) {
             this.#dialogUi.hideDialogModal();
             return;
         }
 
-        if(this.#dialogUi.isVisible && this.#dialogUi.moreMessagesToShow){
+        if (this.#dialogUi.isVisible && this.#dialogUi.moreMessagesToShow) {
             this.#dialogUi.showNextMessage();
             return;
         }
 
         console.log('start of interaction check');
 
-        const {x, y} = this.#player.sprite;
-        const targetPosition = getTargetPositionFromGameObjectPositionAndDirection({x,y}, this.#player.direction);
+        const { x, y } = this.#player.sprite;
+        const targetPosition = getTargetPositionFromGameObjectPositionAndDirection({ x, y }, this.#player.direction);
         const nearbySign = this.#signLayer.objects.find((object) => {
             if (!object.x || !object.y) {
                 return;
@@ -207,15 +204,24 @@ export class WorldScene extends Phaser.Scene {
             const props = nearbySign.properties;
             /** @type {string} */
             const msg = props.find((props) => props.name === 'message')?.value;
-            
+
             const usePlaceholderText = this.#player.direction !== DIRECTION.UP;
             let textToShow = CANNOT_READ_SIGN_TEXT;
             if (!usePlaceholderText) {
                 textToShow = msg || SAMPLE_TEXT;
             }
-            
+
             this.#dialogUi.showDialogModal([textToShow]);
             return;
+        }
+
+        const nearbyNpc = this.#npcs.find((npc) => {
+            return npc.sprite.x === targetPosition.x && npc.sprite.y === targetPosition.y;
+        });
+        if (nearbyNpc) {
+            nearbyNpc.facePlayer(this.#player.direction);
+            this.#dialogUi.showDialogModal(nearbyNpc.messages);
+            //console.log('talking to npc')
         }
     }
 
@@ -246,7 +252,7 @@ export class WorldScene extends Phaser.Scene {
         }
     }
 
-    #isPlayerInputLocked(){
+    #isPlayerInputLocked() {
         return this.#dialogUi.isVisible;
     }
 
@@ -254,28 +260,37 @@ export class WorldScene extends Phaser.Scene {
      * @param {Phaser.Tilemaps.Tilemap} map
      * @returns {void} 
      */
-    #createNPCs(map){
+    #createNPCs(map) {
         this.#npcs = [];
 
-        const npcLayers = map.getObjectLayerNames().filter((layerName)=>layerName.includes('NPC'));
+        const npcLayers = map.getObjectLayerNames().filter((layerName) => layerName.includes('NPC'));
 
-        npcLayers.forEach((layerName) =>{
+        npcLayers.forEach((layerName) => {
             const layer = map.getObjectLayer(layerName);
-            
+
             const npcObject = layer.objects.find((obj) => {
                 return obj.type === CUSTOM_TILED_TYPES.NPC;
             });
-            if(!npcObject || npcObject.x === undefined || npcObject.y === undefined){
+            if (!npcObject || npcObject.x === undefined || npcObject.y === undefined) {
                 return;
             }
-            
-            const npcFrame = npcObject.properties.find((property) => property.name === TILED_NPC_PROPERTY.FRAME)?.value || '0';
 
+            /** @type {string} */
+            const npcFrame = 
+            /** @type {TiledObjectProperty[]}*/(npcObject.properties).find((property) => property.name === TILED_NPC_PROPERTY.FRAME)?.value || '0';
+
+            /** @type {string} */
+            const npcMessagesString = 
+            /** @type {TiledObjectProperty[]}*/(npcObject.properties).find((property) => property.name === TILED_NPC_PROPERTY.MESSAGES)?.value || '0';
+            const npcMessages = npcMessagesString.split('::');
+
+            //in tiled, the x vaule is how far the object starts from the left, and the y is the bottom of tiled
             const npc = new NPC({
                 scene: this,
-                position: {x: npcObject.x, y: npcObject.y - TILE_SIZE},
+                position: { x: npcObject.x, y: npcObject.y - TILE_SIZE },
                 direction: DIRECTION.DOWN,
-                frame: parseInt(npcFrame,10)
+                frame: parseInt(npcFrame, 10),
+                messages: npcMessages,
             })
             this.#npcs.push(npc);
         });
