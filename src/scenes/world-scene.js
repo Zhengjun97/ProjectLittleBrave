@@ -6,6 +6,7 @@ import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { getTargetPositionFromGameObjectPositionAndDirection } from "../utils/grid-utils.js";
 import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from "../utils/text-utils.js";
+import { NPC } from "../world/character/npc.js";
 import { Player } from "../world/character/player.js";
 import { DialogUi } from "../world/dialog-ui.js";
 import { SCENE_KEYS } from "./scene-keys.js";
@@ -18,6 +19,23 @@ import { SCENE_KEYS } from "./scene-keys.js";
  * @property {string} type
  * @property {any} value
  */
+
+
+const TILED_SIGN_PROPERTY = Object.freeze({
+    MESSAGE: 'message',
+  });
+
+  const CUSTOM_TILED_TYPES = Object.freeze({
+    NPC: 'npc',
+    NPC_PATH: 'npc_path',
+  });
+
+  const TILED_NPC_PROPERTY = Object.freeze({
+    IS_SPAWN_POINT: 'is_spawn_point',
+    MOVEMENT_PATTERN: 'movement_pattern',
+    MESSAGE: 'message',
+    FRAME: 'frame',
+  });
 
 export class WorldScene extends Phaser.Scene {
     /**@type {Player} */
@@ -32,6 +50,8 @@ export class WorldScene extends Phaser.Scene {
     #signLayer;
     /**@type {DialogUi} */
     #dialogUi;
+    // /**@type {NPC []} */
+    #npcs;
 
     constructor() {
         super({
@@ -91,6 +111,13 @@ export class WorldScene extends Phaser.Scene {
 
         this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_BACKGROUND, 0).setOrigin(0);
 
+        //create NPCs
+       this.#createNPCs(map);
+
+
+
+
+
         this.#player = new Player({
             scene: this,
             position: dataManager.store.get(DATA_MANAGER_STORE_KEYS.PLAYER_POSITION),
@@ -134,6 +161,11 @@ export class WorldScene extends Phaser.Scene {
         } 
 
         this.#player.update(time);
+
+
+        this.#npcs.forEach((npc) => {
+            npc.update(time);
+        }); 
     }
 
     #handlePlayerInteraction() {
@@ -210,5 +242,36 @@ export class WorldScene extends Phaser.Scene {
 
     #isPlayerInputLocked(){
         return this.#dialogUi.isVisible;
+    }
+
+    /**
+     * @param {Phaser.Tilemaps.Tilemap} map
+     * @returns {void} 
+     */
+    #createNPCs(map){
+        this.#npcs = [];
+
+        const npcLayers = map.getObjectLayerNames().filter((layerName)=>layerName.includes('NPC'));
+
+        npcLayers.forEach((layerName) =>{
+            const layer = map.getObjectLayer(layerName);
+            
+            const npcObject = layer.objects.find((obj) => {
+                return obj.type === CUSTOM_TILED_TYPES.NPC;
+            });
+            if(!npcObject || npcObject.x === undefined || npcObject.y === undefined){
+                return;
+            }
+            
+            const npcFrame = npcObject.properties.find((property) => property.name === TILED_NPC_PROPERTY.FRAME)?.value || '0';
+
+            const npc = new NPC({
+                scene: this,
+                position: {x: npcObject.x, y: npcObject.y - TILE_SIZE},
+                direction: DIRECTION.DOWN,
+                frame: parseInt(npcFrame,10)
+            })
+            this.#npcs.push(npc);
+        });
     }
 }
