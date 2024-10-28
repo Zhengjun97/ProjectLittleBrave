@@ -1,5 +1,5 @@
 
-import { ATTACK_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
+import { ATTACK_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
 import Phaser from "../lib/phaser.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
@@ -45,7 +45,8 @@ export class PreloadScene extends Phaser.Scene{
         this.load.image(MONSTER_ASSET_KEYS.IGUANIGNITE, `${mosterTamerAssetPath}/monsters/iguanignite.png`);
         
         //ui assets
-        this.load.image(UI_ASSET_KEYS.CURSOR, `${mosterTamerAssetPath}/ui/cursor.png`);
+        this.load.image(UI_ASSET_KEYS.CURSOR, `${mosterTamerAssetPath}/ui/cursor_white.png`);
+        this.load.image(UI_ASSET_KEYS.MENU_BACKGROUND, `${kenneysAssetPath}/ui-space-expansion/glassPanel.png`);
 
         //load json data
         this.load.json(DATA_ASSET_KEYS.ATTACKS, 'assets/data/attacks.json');
@@ -85,6 +86,12 @@ export class PreloadScene extends Phaser.Scene{
             frameHeight: 16,
         });
 
+        //UI comp for title
+        this.load.image(TITLE_ASSET_KEYS.BACKGROUND, `${mosterTamerAssetPath}/ui/title/background.png`);
+        this.load.image(TITLE_ASSET_KEYS.PANEL, `${mosterTamerAssetPath}/ui/title/title_background.png`);
+        this.load.image(TITLE_ASSET_KEYS.TITLE, `${mosterTamerAssetPath}/ui/title/title_text.png`);
+
+
 
     }
 
@@ -92,7 +99,7 @@ export class PreloadScene extends Phaser.Scene{
        
         console.log(`[${PreloadScene.name}:create] invoked`);
         this.#createAnimation();
-        this.scene.start(SCENE_KEYS.WORLD_SCENE);
+        this.scene.start(SCENE_KEYS.TITLE_SCENE);
     }
 
     #createAnimation() {
