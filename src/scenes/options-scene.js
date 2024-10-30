@@ -9,6 +9,15 @@ const OPTIONS_TEXT_STYLE = Object.freeze({
     fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#ffffff', fontSize: '30px',
  });
 
+const OPTION_MENU_OPTION_INFO_MSG = Object.freeze({
+    TEXT_SPEED: 'Choose one of three text display speeds.',
+    BATTLE_SCENE: 'Choose to display battle animations and effects or not.',
+    BATTLE_STYLE: 'Choose to allow you to be recalled between rounds.',
+    SOUND: 'Choose to enbale or disable the sound.',
+    VOLUME: 'Choose the volume for the music and sound effects of the game.',
+    MENU_COLOR: 'Choose one of the three menue color options.',
+    CONFIRM: 'Save your changes and go back to the main menu.',
+});
 
 export class OptionsScene extends Phaser.Scene {
     /** @type {Phaser.GameObjects.Container} */
@@ -23,6 +32,18 @@ export class OptionsScene extends Phaser.Scene {
     #battleStyleOptionTextGameObjects;
     /** @type {Phaser.GameObjects.Group} */
     #soundOptionTextGameObjects;
+    /** @type {Phaser.GameObjects.Rectangle} */
+    #volumeOptionsMenuCursor;
+    /** @type {Phaser.GameObjects.Text} */
+    #volumeOptionsVauleText;
+    /** @type {Phaser.GameObjects.Text} */
+    #selectedMenuColorTextGameObject;
+    /** @type {Phaser.GameObjects.Container} */
+    #infoContainer;
+    /** @type {Phaser.GameObjects.Text} */
+    #selectedOptionInfoMsgTextGameObject;
+    /** @type {Phaser.GameObjects.Rectangle} */
+    #optionsMenuCursor;
 
     constructor() {
         super({
@@ -50,6 +71,7 @@ export class OptionsScene extends Phaser.Scene {
         this.#mainContainer.setX(100).setY(20);
 
         //create main option sections
+        this.add.text(width / 2, 40, 'Options', OPTIONS_TEXT_STYLE).setOrigin(0.5);
         const menuOptionsPositon = {
             x: 25,
             yStart: 55,
@@ -75,21 +97,40 @@ export class OptionsScene extends Phaser.Scene {
             this.add.text(420,130,'On', OPTIONS_TEXT_STYLE),
             this.add.text(590,130,'Off', OPTIONS_TEXT_STYLE),
         ]);
+
         //create battle style options
         this.#battleStyleOptionTextGameObjects = this.add.group([
             this.add.text(420,185,'Set', OPTIONS_TEXT_STYLE),
             this.add.text(590,185,'Shift', OPTIONS_TEXT_STYLE),
         ]);
+
         //create sounds options
         this.#soundOptionTextGameObjects = this.add.group([
             this.add.text(420,240,'On', OPTIONS_TEXT_STYLE),
             this.add.text(590,240,'Off', OPTIONS_TEXT_STYLE),
         ]);
+
         //create volume options
+        this.add.rectangle(420, 312, 300, 4, 0xffffff, 1).setOrigin(0, 0.5);
+        this.#volumeOptionsMenuCursor = this.add.rectangle(710, 312, 10, 25, 0xff2222, 1).setOrigin(0, 0.5);
+        this.#volumeOptionsVauleText = this.add.text(760, 295, '100%', OPTIONS_TEXT_STYLE);
         
         //frame options
+        this.#selectedMenuColorTextGameObject = this.add.text(590, 350, '', OPTIONS_TEXT_STYLE);
+        this.add.image(530, 352, UI_ASSET_KEYS.CURSOR).setOrigin(1,0).setScale(2.5).setFlipX(true);
+        this.add.image(660, 352, UI_ASSET_KEYS.CURSOR).setOrigin(0,0).setScale(2.5);
+        
+        //option details container
+        this.#infoContainer = this.#nineSliceMainContainer.createNineSliceContainer(this, optionMenuWidth, 100);
+        this.#infoContainer.setX(100).setY(height - 110);
+        this.#selectedOptionInfoMsgTextGameObject = this.add.text(125, 480, OPTION_MENU_OPTION_INFO_MSG.TEXT_SPEED, {
+            ...OPTIONS_TEXT_STYLE, 
+            ...{
+                wordWrap: {width: width - 250},
+            }
+        });
 
-        //option
+        this.#optionsMenuCursor = this.add.rectangle(110, 70, optionMenuWidth - 20, 40, 0xffffff, 0).setOrigin(0).setStrokeStyle(4, 0xe4434a, 1);
     }
 }
 
