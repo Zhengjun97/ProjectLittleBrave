@@ -99,7 +99,7 @@ export class PreloadScene extends Phaser.Scene{
        
         console.log(`[${PreloadScene.name}:create] invoked`);
         this.#createAnimation();
-        this.scene.start(SCENE_KEYS.TITLE_SCENE);
+        this.scene.start(SCENE_KEYS.OPTIONS_SCENE);
     }
 
     #createAnimation() {

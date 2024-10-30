@@ -9,7 +9,7 @@ import { SCENE_KEYS } from "./scene-keys.js";
 
 
 /** @tpye {Phaser.Type.GameObjects.Text.TextStyle} */
-export const MENU_TEXT_STYLE = Object.freeze({
+const MENU_TEXT_STYLE = Object.freeze({
     fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#cfecff', fontSize: '30px',
  });
 
@@ -114,7 +114,7 @@ export class TitleScene extends Phaser.Scene{
             }
 
             if(this.#selectedMenuOption === MAIN_MENU_OPTIONS.OPTIONS){
-                this.scene.start(SCENE_KEYS.WORLD_SCENE);
+                this.scene.start(SCENE_KEYS.OPTIONS_SCENE);
                 return;
             }
         });
