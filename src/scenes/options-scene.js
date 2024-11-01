@@ -165,6 +165,11 @@ export class OptionsScene extends Phaser.Scene {
         this.#optionsMenuCursor = this.add.rectangle(110, 70, optionMenuWidth - 20, 40, 0xffffff, 0).setOrigin(0).setStrokeStyle(4, 0xe4434a, 1);
 
         this.#updateTextSpeedGameObject();
+        this.#updateBattleSceneOptionGameObject();
+        this.#updateBattleStyleOptionGameObject();
+        this.#updateSoundOptionGameObject();
+        this.#updateVolumeSlider();
+        this.#updateMenuColorDisplayText();
 
         this.#contorls = new Controls(this);
 
@@ -183,7 +188,7 @@ export class OptionsScene extends Phaser.Scene {
             return;
         }
 
-        if(this.#contorls.wasSpaceKeyPressed() && this.#selectedOptionMenu === OPTION_MENU_OPTIONS.CONFIRM) {
+        if (this.#contorls.wasSpaceKeyPressed() && this.#selectedOptionMenu === OPTION_MENU_OPTIONS.CONFIRM) {
             this.#contorls.lockInput = true;
             this.cameras.main.fadeOut(500, 0, 0, 0);
             return;
@@ -377,14 +382,14 @@ export class OptionsScene extends Phaser.Scene {
      */
     #updateTextSpeedOption(direction) {
         if (direction === DIRECTION.LEFT) {
-            if(this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.SLOW) {
+            if (this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.SLOW) {
                 return;
             }
-            if(this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.MID) {
+            if (this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.MID) {
                 this.#selectedTextSpeedOption = TEXT_SPEED_OPTIONS.SLOW;
                 return;
             }
-            if(this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.FAST) {
+            if (this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.FAST) {
                 this.#selectedTextSpeedOption = TEXT_SPEED_OPTIONS.MID;
                 return;
             }
@@ -392,14 +397,14 @@ export class OptionsScene extends Phaser.Scene {
             return;
         }
         if (direction === DIRECTION.RIGHT) {
-            if(this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.FAST) {
+            if (this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.FAST) {
                 return;
             }
-            if(this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.MID) {
+            if (this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.MID) {
                 this.#selectedTextSpeedOption = TEXT_SPEED_OPTIONS.FAST;
                 return;
             }
-            if(this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.SLOW) {
+            if (this.#selectedTextSpeedOption === TEXT_SPEED_OPTIONS.SLOW) {
                 this.#selectedTextSpeedOption = TEXT_SPEED_OPTIONS.MID;
                 return;
             }
@@ -436,11 +441,39 @@ export class OptionsScene extends Phaser.Scene {
      * @param {'LEFT' | 'RIGHT'} direction 
      */
     #updateBattleSceneOption(direction) {
+        if (direction === DIRECTION.LEFT && this.#selectedBattleSceneOption === BATTLE_SCENE_OPTIONS.ON) {
+            return;
+        }
+        if (direction === DIRECTION.LEFT) {
+            this.#selectedBattleSceneOption = BATTLE_SCENE_OPTIONS.ON;
+            return;
+        }
 
+        if (direction === DIRECTION.RIGHT && this.#selectedBattleSceneOption === BATTLE_SCENE_OPTIONS.OFF) {
+            return;
+        }
+        if (direction === DIRECTION.RIGHT) {
+            this.#selectedBattleSceneOption = BATTLE_SCENE_OPTIONS.OFF;
+            return;
+        }
+        exhaustiveGuard(direction);
     }
 
     #updateBattleSceneOptionGameObject() {
+        const textGameObject = /** @type {Phaser.GameObjects.Text[]} */(this.#battleSceneOptionTextGameObjects.getChildren());
+        textGameObject.forEach((obj) => {
+            obj.setColor(TEXT_FONT_COLORS.NOT_SELECTED);
+        });
 
+        if (this.#selectedBattleSceneOption === BATTLE_SCENE_OPTIONS.OFF) {
+            textGameObject[1].setColor(TEXT_FONT_COLORS.SELECTED);
+            return;
+        }
+        if (this.#selectedBattleSceneOption === BATTLE_SCENE_OPTIONS.ON) {
+            textGameObject[0].setColor(TEXT_FONT_COLORS.SELECTED);
+            return;
+        }
+        exhaustiveGuard(this.#selectedBattleSceneOption);
     }
 
     /**
@@ -448,11 +481,39 @@ export class OptionsScene extends Phaser.Scene {
      * @param {'LEFT' | 'RIGHT'} direction 
      */
     #updateBattleStyleOption(direction) {
+        if (direction === DIRECTION.LEFT && this.#selectedBattleStyleOption === BATTLE_STYLE_OPTIONS.SET) {
+            return;
+        }
+        if (direction === DIRECTION.LEFT) {
+            this.#selectedBattleStyleOption = BATTLE_STYLE_OPTIONS.SET;
+            return;
+        }
 
+        if (direction === DIRECTION.RIGHT && this.#selectedBattleStyleOption === BATTLE_STYLE_OPTIONS.SHIFT) {
+            return;
+        }
+        if (direction === DIRECTION.RIGHT) {
+            this.#selectedBattleStyleOption = BATTLE_STYLE_OPTIONS.SHIFT;
+            return;
+        }
+        exhaustiveGuard(direction);
     }
 
     #updateBattleStyleOptionGameObject() {
+        const textGameObject = /** @type {Phaser.GameObjects.Text[]} */(this.#battleStyleOptionTextGameObjects.getChildren());
+        textGameObject.forEach((obj) => {
+            obj.setColor(TEXT_FONT_COLORS.NOT_SELECTED);
+        });
 
+        if (this.#selectedBattleStyleOption === BATTLE_STYLE_OPTIONS.SHIFT) {
+            textGameObject[1].setColor(TEXT_FONT_COLORS.SELECTED);
+            return;
+        }
+        if (this.#selectedBattleStyleOption === BATTLE_STYLE_OPTIONS.SET) {
+            textGameObject[0].setColor(TEXT_FONT_COLORS.SELECTED);
+            return;
+        }
+        exhaustiveGuard(this.#selectedBattleStyleOption);
     }
 
     /**
@@ -460,11 +521,39 @@ export class OptionsScene extends Phaser.Scene {
      * @param {'LEFT' | 'RIGHT'} direction 
      */
     #updateSoundOption(direction) {
+        if (direction === DIRECTION.LEFT && this.#selectedSoundOption === SOUND_OPTIONS.ON) {
+            return;
+        }
+        if (direction === DIRECTION.LEFT) {
+            this.#selectedSoundOption = SOUND_OPTIONS.ON;
+            return;
+        }
 
+        if (direction === DIRECTION.RIGHT && this.#selectedSoundOption === SOUND_OPTIONS.OFF) {
+            return;
+        }
+        if (direction === DIRECTION.RIGHT) {
+            this.#selectedSoundOption = SOUND_OPTIONS.OFF;
+            return;
+        }
+        exhaustiveGuard(direction);
     }
 
     #updateSoundOptionGameObject() {
+        const textGameObject = /** @type {Phaser.GameObjects.Text[]} */(this.#soundOptionTextGameObjects.getChildren());
+        textGameObject.forEach((obj) => {
+            obj.setColor(TEXT_FONT_COLORS.NOT_SELECTED);
+        });
 
+        if (this.#selectedSoundOption === SOUND_OPTIONS.OFF) {
+            textGameObject[1].setColor(TEXT_FONT_COLORS.SELECTED);
+            return;
+        }
+        if (this.#selectedSoundOption === SOUND_OPTIONS.ON) {
+            textGameObject[0].setColor(TEXT_FONT_COLORS.SELECTED);
+            return;
+        }
+        exhaustiveGuard(this.#selectedSoundOption);
     }
 
     /**
@@ -472,10 +561,47 @@ export class OptionsScene extends Phaser.Scene {
      * @param {'LEFT' | 'RIGHT'} direction 
      */
     #updateVolumeOption(direction) {
-
+        if (direction === DIRECTION.LEFT && this.#selectedVolumeOption === 0) {
+            return;
+        }
+        if (direction === DIRECTION.LEFT) {
+            this.#selectedVolumeOption = /** @type {import("../common/options.js").VolumeMenuOptions} */(this.#selectedVolumeOption - 1);
+            return;
+        }
+        if (direction === DIRECTION.RIGHT && this.#selectedVolumeOption === 4) {
+            return;
+        }
+        if (direction === DIRECTION.RIGHT) {
+            this.#selectedVolumeOption = /** @type {import("../common/options.js").VolumeMenuOptions} */(this.#selectedVolumeOption + 1);
+            return;
+        }
     }
 
     #updateVolumeSlider() {
+        switch (this.#selectedVolumeOption) {
+            case 0:
+                this.#volumeOptionsMenuCursor.setX(420);
+                this.#volumeOptionsVauleText.setText('0%');
+                break;
+            case 1:
+                this.#volumeOptionsMenuCursor.setX(490);
+                this.#volumeOptionsVauleText.setText('25%');
+                break;
+            case 2:
+                this.#volumeOptionsMenuCursor.setX(560);
+                this.#volumeOptionsVauleText.setText('50%');
+                break;
+            case 3:
+                this.#volumeOptionsMenuCursor.setX(630);
+                this.#volumeOptionsVauleText.setText('75%');
+                break;
+            case 4:
+                this.#volumeOptionsMenuCursor.setX(710);
+                this.#volumeOptionsVauleText.setText('100%');
+                break;
+            default:
+                exhaustiveGuard(this.#selectedVolumeOption);
+        }
 
     }
 
@@ -484,12 +610,41 @@ export class OptionsScene extends Phaser.Scene {
      * @param {'LEFT' | 'RIGHT'} direction 
      */
     #updateMenuColorOption(direction) {
-
+        if (direction === DIRECTION.LEFT && this.#selectedMenuColorOption === 0) {
+            this.#selectedMenuColorOption = 2;
+            return;
+        }
+        if (direction === DIRECTION.RIGHT && this.#selectedMenuColorOption === 2) {
+            this.#selectedMenuColorOption = 0;
+            return;
+        }
+        if (direction === DIRECTION.LEFT) {
+            this.#selectedMenuColorOption -= 1;
+            return;
+        }
+        if (direction === DIRECTION.RIGHT) {
+            this.#selectedMenuColorOption += 1;
+            return;
+        }
+        exhaustiveGuard(direction);
     }
 
     #updateMenuColorDisplayText() {
+        switch (this.#selectedMenuColorOption) {
+            case 0:
+                this.#selectedMenuColorTextGameObject.setText('1');
+                break;
+            case 1:
+                this.#selectedMenuColorTextGameObject.setText('2');
+                break;
+            case 2:
+                this.#selectedMenuColorTextGameObject.setText('3');
+                break;
+            default:
+                exhaustiveGuard(this.#selectedMenuColorOption);
 
+        }
     }
-    
+
 }
 
