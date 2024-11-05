@@ -14,10 +14,10 @@ export const OPTION_MENU_OPTIONS = Object.freeze({
 });
 
 /**
- * @typedef {keyof typeof TEXT_SPEED_OPTIONS} TextSpeedMenuPotions
+ * @typedef {keyof typeof TEXT_SPEED_OPTIONS} TextSpeedMenuOptions
  */
 
-/** @enum {TextSpeedMenuPotions} */
+/** @enum {TextSpeedMenuOptions} */
 export const TEXT_SPEED_OPTIONS = Object.freeze({
     SLOW: 'SLOW',
     MID: 'MID',

@@ -57,7 +57,7 @@ export class OptionsScene extends Phaser.Scene {
     #contorls;
     /** @type {import("../common/options.js").OptionMenuOptions} */
     #selectedOptionMenu;
-    /** @type {import("../common/options.js").TextSpeedMenuPotions} */
+    /** @type {import("../common/options.js").TextSpeedMenuOptions} */
     #selectedTextSpeedOption;
     /** @type {import("../common/options.js").BattleSceneMenuOptions} */
     #selectedBattleSceneOption;
