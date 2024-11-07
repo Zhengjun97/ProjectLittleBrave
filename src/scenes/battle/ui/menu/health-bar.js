@@ -79,26 +79,41 @@ export class HealthBar {
         this.#rightCap.x = this.#midCap.x + this.#midCap.displayWidth;
     }
 
+    #updateHealthBarGameObjects() {
+        this.#rightCap.x = this.#midCap.x + this.#midCap.displayWidth;
+        const isVisible =  this.#midCap.displayWidth > 0;
+        this.#leftCap.visible = isVisible;
+        this.#midCap.visible = isVisible;
+        this.#rightCap.visible = isVisible;
+      }
+
+
+
     /**
      * @param {number} [percent=1] a number bewteen 0 and 1 that is used for setting how filled the health bar is
      * @param {Object} [options] 
      * @param {number} [options.duration=1000] 
-     * @param {() => void} [options.callback] 
+     * @param {() => void} [options.callback]
+     * @param {boolean} [options.skipBattleAnimations=false] 
      */
     setMeterPercentageAnimated(percent, options) {
         const width =this.#fullWidth * percent;
 
+
+    if (options?.skipBattleAnimations) {
+        this.#setMeterPercentage(percent);
+        if (options?.callback) {
+          options.callback();
+        }
+        return;
+      }
+
         this.#scene.tweens.add({
             targets: this.#midCap,
             displayWidth: width,
-            duration: options?.duration || 1000,
-            ease: Phaser.Math.Easing.Sine.Out,
+            duration: options?.duration || options?.duration === 0 ? 0 : 1000,            ease: Phaser.Math.Easing.Sine.Out,
             onUpdate: () => {
-                this.#rightCap.x = this.#midCap.x + this.#midCap.displayWidth;
-                const isVisible =  this.#midCap.displayWidth > 0;
-                this.#leftCap.visible = isVisible;
-                this.#midCap.visible = isVisible;
-                this.#rightCap.visible = isVisible;
+                this.#updateHealthBarGameObjects();
             },
             onComplete: options?.callback,
         });

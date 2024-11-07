@@ -23,7 +23,7 @@ export class BattleMonster {
   /** @protected @type {Phaser.GameObjects.Container} */
   _phaserHealthBarGameContainer;
   /** @protected @type {boolean} */
-  _skipBattleAnimations
+  _skipBattleAnimations;
 
 
   /**
@@ -46,6 +46,9 @@ export class BattleMonster {
     ).setFlipX(true).setScale(0.5).setAlpha(0);
 
     this.#createHealthBarComponents(config.scaleHealthBarBackgroundImageByY);
+    this._healthBar.setMeterPercentageAnimated(this._currentHealth / this._maxHealth, {
+      skipBattleAnimations: true,
+    });
 
     this._monsterDetails.attackIds.forEach((attackId) => {
       const monsterAttack = DataUtils.getMonsterAttack(this._scene, attackId);

@@ -127,6 +127,9 @@ export class WorldScene extends Phaser.Scene {
             spriteGridMovementFinishedCallback: () => {
                 this.#handlePlayerMovementUpdate();
             },
+            spriteChangedDirectionCallback: ()=> {
+                this.#handlePlayerDirectionUpdate();
+            },
             otherCharactersToCheckForCollisionsWith: this.#npcs,
         });
 
@@ -241,7 +244,7 @@ export class WorldScene extends Phaser.Scene {
             y: this.#player.sprite.y,
         });
 
-        dataManager.store.set(DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION, this.#player.direction);
+        
         if (!this.#encounterLayer) {
             return;
         }
@@ -324,5 +327,10 @@ export class WorldScene extends Phaser.Scene {
             })
             this.#npcs.push(npc);
         });
+    }
+
+
+    #handlePlayerDirectionUpdate(){
+        dataManager.store.set(DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION, this.#player.direction);
     }
 }
