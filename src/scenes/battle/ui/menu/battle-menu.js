@@ -6,7 +6,7 @@ import { ACTIVE_BATTLE_MENU, ATTACK_MOVE_OPT, BATTLE_MENU_OPTION } from "./battl
 import { BATTLE_UI_TEXT_STYLE } from "./battle-menu-config.js";
 import { BattleMonster } from "../../monsters/battle-monster.js";
 import { animateText } from "../../../../utils/text-utils.js";
-import { SKIP_BATTLE_ANIMATIONS } from "../../../../config.js";
+import { dataManager } from "../../../../utils/data-manager.js";
 
 const BATTLE_MENU_CURSOR_POS = Object.freeze({
     x: 42,
@@ -58,7 +58,7 @@ export class BattleMenu {
     /** @type {Phaser.Tweens.Tween} */
     #userInputCursorPhaserTween;
     /** @type {boolean} */
-    #queueMessagesSkipAnimation;
+    #skipAnimations;
     /** @type {boolean} */
     #queueMessageAnimationPlaying;
 
@@ -66,7 +66,7 @@ export class BattleMenu {
      * @param {Phaser.Scene} scene the Phaser 3 scene the battle menu will be added to 
      * @param {BattleMonster} activePlayerMonster  
     */
-    constructor(scene, activePlayerMonster) {
+    constructor(scene, activePlayerMonster, skipBattleAnimations = false) {
         this.#scene = scene;
         this.#activePlayerMonster = activePlayerMonster;
         this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_MAIN;
@@ -76,7 +76,7 @@ export class BattleMenu {
         this.#queuedInfoPanelCallBack = undefined;
         this.#waitingForPlayerInput = false;
         this.#selectedAttackIndex = undefined;
-        this.#queueMessagesSkipAnimation = false;
+        this.#skipAnimations = skipBattleAnimations;
         this.#queueMessageAnimationPlaying = false;
         this.#mainInfoPane();
         this.#createMainBattleMenu();
@@ -171,13 +171,12 @@ export class BattleMenu {
     /**
      * 
      * @param {string} message 
-     * @param {() => void} [callback]
-     * @param {boolean} [skipAnimation=false] 
+     * @param {() => void} [callback] 
      */
-    updateInfoPaneMessageNoInputRequired(message, callback, skipAnimation = false) {
+    updateInfoPaneMessageNoInputRequired(message, callback) {
         this.#battleTextGameObjLine1.setText('').setAlpha(1);
 
-        if (skipAnimation) {
+        if (this.#skipAnimations) {
             this.#battleTextGameObjLine1.setText(message);
             this.#waitingForPlayerInput = false;
             if (callback) {
@@ -187,7 +186,7 @@ export class BattleMenu {
         }
 
         animateText(this.#scene, this.#battleTextGameObjLine1, message, {
-            delay: 50,
+            delay: dataManager.getAnimatedTextSpeed(),
             callback: () => {
                 this.#waitingForPlayerInput = false;
                 if (callback) {
@@ -201,12 +200,10 @@ export class BattleMenu {
      * 
      * @param {string[]} messages 
      * @param {() => void} [callback]
-     * @param {boolean} [skipAnimation=false] 
      */
-    updateInfoPaneMessageAndWaitForInput(messages, callback, skipAnimation = false) {
+    updateInfoPaneMessageAndWaitForInput(messages, callback) {
         this.#queuedInfoPanelMessage = messages;
         this.#queuedInfoPanelCallBack = callback;
-        this.#queueMessagesSkipAnimation = skipAnimation;
 
         this.#updateInfoPaneWithMessage();
     }
@@ -228,7 +225,7 @@ export class BattleMenu {
         //get first message from queue and animate message
         const messageToDisplay = this.#queuedInfoPanelMessage.shift();
 
-        if (this.#queueMessagesSkipAnimation) {
+        if (this.#skipAnimations) {
             this.#battleTextGameObjLine1.setText(messageToDisplay);
             this.#queueMessageAnimationPlaying = false;
             this.#waitingForPlayerInput = true;
@@ -239,7 +236,7 @@ export class BattleMenu {
         this.#queueMessageAnimationPlaying = true;
 
         animateText(this.#scene, this.#battleTextGameObjLine1, messageToDisplay, {
-            delay: 50,
+            delay: dataManager.getAnimatedTextSpeed(),
             callback: () => {
                 this.playInputCursorAnimation();
                 this.#waitingForPlayerInput = true;
@@ -510,7 +507,8 @@ export class BattleMenu {
             this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_ITEM;
             this.updateInfoPaneMessageAndWaitForInput(['Your bag is empty...'], () => {
                 this.#swtichToMainBattleMenu();
-            }, SKIP_BATTLE_ANIMATIONS);
+            },
+            );
             return;
         }
 
@@ -522,7 +520,8 @@ export class BattleMenu {
             this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_RUN;
             this.updateInfoPaneMessageAndWaitForInput(['You fail to run away...'], () => {
                 this.#swtichToMainBattleMenu();
-            }, SKIP_BATTLE_ANIMATIONS);        
+            },
+            );        
             return;
         }
 

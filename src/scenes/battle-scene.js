@@ -1,8 +1,9 @@
 import { MONSTER_ASSET_KEYS } from "../assets/asset-keys.js";
 import { DIRECTION } from "../common/direction.js";
-import { SKIP_BATTLE_ANIMATIONS } from "../config.js";
+import { BATTLE_SCENE_OPTIONS } from "../common/options.js";
 import Phaser from "../lib/phaser.js";
 import { Controls } from "../utils/controls.js";
+import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { createSceneTransition } from "../utils/scene-transition.js";
 import { StateMachine } from "../utils/state-machine.js";
 import { ATTACK_TARGET, AttackManager } from "./battle/attacks/attack-manager.js";
@@ -40,7 +41,11 @@ const BATTLE_STATES = Object.freeze({
     #battleStateMachine;
     /** @type {AttackManager} */
     #attackManager;
-  
+    /** @type {boolean} */
+    #skipAnimations;
+
+
+
     constructor() {
       super({
         key: SCENE_KEYS.BATTLE_SCENE,
@@ -49,6 +54,12 @@ const BATTLE_STATES = Object.freeze({
   
     init() {
       this.#activePlayerAttackIndex = -1;
+      const chosenBattleSceneOption = dataManager.store.get(DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_SCENE_ANIMATIONS);
+      if(chosenBattleSceneOption === undefined || chosenBattleSceneOption === BATTLE_SCENE_OPTIONS.ON){
+        this.#skipAnimations = false;
+        return;
+      }
+      this.#skipAnimations = true;
     }
   
     create() {
@@ -70,7 +81,7 @@ const BATTLE_STATES = Object.freeze({
           baseAttack: 5,
           currentLevel: 5,
         },
-        skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
+        skipBattleAnimations: this.#skipAnimations,
       });
   
       this.#activePlayerMonster = new PlayerBattleMonster({
@@ -85,13 +96,13 @@ const BATTLE_STATES = Object.freeze({
           baseAttack: 15,
           currentLevel: 5,
         },
-        skipBattleAnimations: SKIP_BATTLE_ANIMATIONS,
+        skipBattleAnimations: this.#skipAnimations,
       });
   
       // render out the main info and sub info panes
-      this.#battleMenu = new BattleMenu(this, this.#activePlayerMonster);
+      this.#battleMenu = new BattleMenu(this, this.#activePlayerMonster, this.#skipAnimations);
       this.#createBattleStateMachine();
-      this.#attackManager = new AttackManager(this, SKIP_BATTLE_ANIMATIONS);
+      this.#attackManager = new AttackManager(this, this.#skipAnimations);
   
       this.#controls = new Controls(this);
     }
@@ -166,7 +177,6 @@ const BATTLE_STATES = Object.freeze({
             );
           });
         },
-        SKIP_BATTLE_ANIMATIONS
       );
     }
   
@@ -193,7 +203,6 @@ const BATTLE_STATES = Object.freeze({
             );
           });
         },
-        SKIP_BATTLE_ANIMATIONS
       );
     }
   
@@ -205,7 +214,6 @@ const BATTLE_STATES = Object.freeze({
             () => {
               this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
             },
-            SKIP_BATTLE_ANIMATIONS
           );
         });
         return;
@@ -218,7 +226,6 @@ const BATTLE_STATES = Object.freeze({
             () => {
               this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
             },
-            SKIP_BATTLE_ANIMATIONS
           );
         });
         return;
@@ -242,7 +249,7 @@ const BATTLE_STATES = Object.freeze({
         onEnter: () => {
           // wait for any scene setup and transitions to complete
           createSceneTransition(this,{
-            skipSceneTransition: SKIP_BATTLE_ANIMATIONS,
+            skipSceneTransition: this.#skipAnimations,
             callback: ()=> {
                 this.#battleStateMachine.setState(BATTLE_STATES.PRE_BATTLE_INFO);         
             }
@@ -262,7 +269,6 @@ const BATTLE_STATES = Object.freeze({
                 // wait for text animation to complete and move to next state
                 this.#battleStateMachine.setState(BATTLE_STATES.BRING_OUT_MONSTER);
               },
-              SKIP_BATTLE_ANIMATIONS
             );
           });
         },
@@ -282,7 +288,6 @@ const BATTLE_STATES = Object.freeze({
                   this.#battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
                 });
               },
-              SKIP_BATTLE_ANIMATIONS
             );
           });
         },
@@ -340,7 +345,6 @@ const BATTLE_STATES = Object.freeze({
             () => {
               this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
             },
-            SKIP_BATTLE_ANIMATIONS
           );
         },
       });
