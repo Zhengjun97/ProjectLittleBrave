@@ -3,10 +3,12 @@ import { DIRECTION } from '../common/direction.js';
 export class Controls{
     /**@type {Phaser.Scene} */
     #scene;
-    /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
+    /** @type {Phaser.Types.Input.Keyboard.CursorKeys | undefined} */
     #cursorKeys;
     /**@type {boolean} */
     #lockPlayerInput;
+    /** @type {Phaser.Input.Keyboard.Key  | undefined} */
+    #enterKey;
 
 
     /**
@@ -16,6 +18,7 @@ export class Controls{
     constructor(scene){
         this.#scene = scene;
         this.#cursorKeys = this.#scene.input.keyboard.createCursorKeys();
+        this.#enterKey  = this.#scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         this.#lockPlayerInput = false;
     }
 
@@ -28,12 +31,21 @@ export class Controls{
         this.#lockPlayerInput = val;
     }
 
-    wasSpaceKeyPressed(){
+    /** @returns {boolean} */
+    wasEnterKeyPressed(){
         if(this.#cursorKeys === undefined){
             return false;
         }
-        return Phaser.Input.Keyboard.JustDown(this.#cursorKeys.space);
+        return Phaser.Input.Keyboard.JustDown(this.#enterKey);
     }
+
+    /** @returns {boolean} */
+    wasSpaceKeyPressed(){
+      if(this.#cursorKeys === undefined){
+          return false;
+      }
+      return Phaser.Input.Keyboard.JustDown(this.#cursorKeys.space);
+  }
 
     wasBackKeyPressed(){
         if(this.#cursorKeys === undefined){
