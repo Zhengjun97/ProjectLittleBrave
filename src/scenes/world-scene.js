@@ -157,70 +157,88 @@ export class WorldScene extends Phaser.Scene {
     }
 
     /**
-     * 
-     * @param {DOMHighResTimeStamp} time 
-     * @returns {void}
-     */
-    update(time) {
-        if (this.#monsterEncountered) {
-            this.#player.update(time);
-            return;
-        }
-
-        const selectedDirection = this.#controls.getDirectionPressedDown();
-        if (selectedDirection !== DIRECTION.NONE && !this.#isPlayerInputLocked()) {
-            this.#player.moveCharacter(selectedDirection);
-        }
-
-        if (this.#controls.wasSpaceKeyPressed() && !this.#player.isMoving && !this.#menu.isVisible) {
-            this.#handlePlayerInteraction();
-        }
-
-        if(this.#controls.wasEnterKeyPressed()){
-            if(this.#dialogUi.isVisible){
-                return;
-            }
-            if(this.#menu.isVisible){
-                this.#menu.hide();
-                return;
-            }
-            this.#menu.show();
-        }
-
-        if(this.#menu.isVisible){
-            //TODO handle input for menu
-            if(this.#controls.wasBackKeyPressed()){
-                this.#menu.hide();
-            }
-        }
-
-
-        this.#player.update(time);
-
-
-        this.#npcs.forEach((npc) => {
-            npc.update(time);
-        });
+   * @param {DOMHighResTimeStamp} time
+   * @returns {void}
+   */
+  update(time) {
+    if (this.#monsterEncountered) {
+      this.#player.update(time);
+      return;
     }
 
-    #handlePlayerInteraction() {
-        if (this.#dialogUi.isAnimationPlaying) {
-            return;
+    const wasSpaceKeyPressed = this.#controls.wasSpaceKeyPressed();
+    const selectedDirectionHelDown = this.#controls.getDirectionPressedDown();
+    const selectedDirectionPressedOnce = this.#controls.getDirectionKeyJustPressed();
+    if (selectedDirectionHelDown !== DIRECTION.NONE && !this.#isPlayerInputLocked()) {
+      this.#player.moveCharacter(selectedDirectionHelDown);
+    }
+
+    if (wasSpaceKeyPressed && !this.#player.isMoving && !this.#menu.isVisible) {
+      this.#handlePlayerInteraction();
+    }
+
+    if (this.#controls.wasEnterKeyPressed() && !this.#player.isMoving) {
+      if (this.#dialogUi.isVisible) {
+        return;
+      }
+
+      if (this.#menu.isVisible) {
+        this.#menu.hide();
+        return;
+      }
+
+      this.#menu.show();
+    }
+
+    if (this.#menu.isVisible) {
+      if (selectedDirectionPressedOnce !== DIRECTION.NONE) {
+        this.#menu.handlePlayerInput(selectedDirectionPressedOnce);
+      }
+
+      if (wasSpaceKeyPressed) {
+        this.#menu.handlePlayerInput('OK');
+
+        if (this.#menu.selectedMenuOption === 'SAVE') {
+          this.#menu.hide();
+          dataManager.saveData();
+          this.#dialogUi.showDialogModal(['Game progress has been saved']);
+        } else if (this.#menu.selectedMenuOption === 'EXIT') {
+          this.#menu.hide();
         }
 
-        if (this.#dialogUi.isVisible && !this.#dialogUi.moreMessagesToShow) {
-            this.#dialogUi.hideDialogModal();
-            if (this.#npcPlayerIsInteractingWith) {
-                this.#npcPlayerIsInteractingWith.isTalkingToPlayer = false;
-                this.#npcPlayerIsInteractingWith = undefined;
-            }
-            return;
-        }
+        // TODO: handle other selected menu options
+      }
 
-        if (this.#dialogUi.isVisible && this.#dialogUi.moreMessagesToShow) {
-            this.#dialogUi.showNextMessage();
-            return;
-        }
+      if (this.#controls.wasBackKeyPressed()) {
+        this.#menu.hide();
+      }
+    }
+
+    this.#player.update(time);
+
+    this.#npcs.forEach((npc) => {
+      npc.update(time);
+    });
+  }
+
+  #handlePlayerInteraction() {
+    if (this.#dialogUi.isAnimationPlaying) {
+      return;
+    }
+
+    if (this.#dialogUi.isVisible && !this.#dialogUi.moreMessagesToShow) {
+      this.#dialogUi.hideDialogModal();
+      if (this.#npcPlayerIsInteractingWith) {
+        this.#npcPlayerIsInteractingWith.isTalkingToPlayer = false;
+        this.#npcPlayerIsInteractingWith = undefined;
+      }
+      return;
+    }
+
+    if (this.#dialogUi.isVisible && this.#dialogUi.moreMessagesToShow) {
+      this.#dialogUi.showNextMessage();
+      return;
+    }
 
         console.log('start of interaction check');
 
@@ -291,8 +309,8 @@ export class WorldScene extends Phaser.Scene {
     }
 
     #isPlayerInputLocked() {
-        return this.#dialogUi.isVisible;
-    }
+        return this.#controls.isInputLocked || this.#dialogUi.isVisible || this.#menu.isVisible;
+      }
 
     /**
      * @param {Phaser.Tilemaps.Tilemap} map
