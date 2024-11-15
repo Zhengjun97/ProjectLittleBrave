@@ -72,6 +72,8 @@ const BATTLE_STATES = Object.freeze({
       this.#activeEnemyMonster = new EnemyBattleMonster({
         scene: this,
         monsterDetails: {
+          id: 2,
+          monsterId: 2,
           name: MONSTER_ASSET_KEYS.CARNODUSK,
           assetKey: MONSTER_ASSET_KEYS.CARNODUSK,
           assetFrame: 0,
@@ -86,17 +88,7 @@ const BATTLE_STATES = Object.freeze({
   
       this.#activePlayerMonster = new PlayerBattleMonster({
         scene: this,
-        monsterDetails: {
-          name: MONSTER_ASSET_KEYS.IGUANIGNITE,
-          assetKey: MONSTER_ASSET_KEYS.IGUANIGNITE,
-          assetFrame: 0,
-          currentHp: 25,
-          maxHp: 25,
-          attackIds: [2],
-          baseAttack: 15,
-          currentLevel: 5,
-        },
-        skipBattleAnimations: this.#skipAnimations,
+        monsterDetails: dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0],        skipBattleAnimations: this.#skipAnimations,
       });
   
       // render out the main info and sub info panes
