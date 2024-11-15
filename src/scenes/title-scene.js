@@ -3,6 +3,7 @@ import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
 import { DIRECTION } from "../common/direction.js";
 import Phaser from "../lib/phaser.js";
 import { Controls } from "../utils/controls.js";
+import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { exhaustiveGuard } from "../utils/guard.js";
 import { NineSlice } from "../utils/nine-slice.js";
 import { SCENE_KEYS } from "./scene-keys.js";
@@ -63,7 +64,7 @@ export class TitleScene extends Phaser.Scene{
         console.log(`[${TitleScene.name}:create] invoked`);
 
         this.#selectedMenuOption = MAIN_MENU_OPTIONS.NEW_GAME;
-        this.#isContinueButtonEnabled = false;
+        this.#isContinueButtonEnabled = dataManager.store.get(DATA_MANAGER_STORE_KEYS.GAME_STARTED) || false;
 
         //create title scene background
         this.add.image(0,0,TITLE_ASSET_KEYS.BACKGROUND).setOrigin(0).setScale(0.65);
@@ -102,25 +103,21 @@ export class TitleScene extends Phaser.Scene{
         });
 
         //add in fade effect
-        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, ()=>{
-            if(this.#selectedMenuOption === MAIN_MENU_OPTIONS.NEW_GAME){
-                this.scene.start(SCENE_KEYS.WORLD_SCENE);
-                return;
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+            if (this.#selectedMenuOption === MAIN_MENU_OPTIONS.OPTIONS) {
+              this.scene.start(SCENE_KEYS.OPTIONS_SCENE);
+              return;
             }
-
-            if(this.#selectedMenuOption === MAIN_MENU_OPTIONS.CONTINUE){
-                this.scene.start(SCENE_KEYS.WORLD_SCENE);
-                return;
+      
+            if (this.#selectedMenuOption === MAIN_MENU_OPTIONS.NEW_GAME) {
+              dataManager.startNewGame();
             }
-
-            if(this.#selectedMenuOption === MAIN_MENU_OPTIONS.OPTIONS){
-                this.scene.start(SCENE_KEYS.OPTIONS_SCENE);
-                return;
-            }
-        });
-
-        this.#controls = new Controls(this);
-    }
+      
+            this.scene.start(SCENE_KEYS.WORLD_SCENE);
+          });
+      
+          this.#controls = new Controls(this);
+        }
 
 
     update(){
