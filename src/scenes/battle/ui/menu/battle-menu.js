@@ -61,6 +61,8 @@ export class BattleMenu {
     #skipAnimations;
     /** @type {boolean} */
     #queueMessageAnimationPlaying;
+    /** @type {boolean} */
+    #runAttempt;
 
     /**
      * @param {Phaser.Scene} scene the Phaser 3 scene the battle menu will be added to 
@@ -78,6 +80,7 @@ export class BattleMenu {
         this.#selectedAttackIndex = undefined;
         this.#skipAnimations = skipBattleAnimations;
         this.#queueMessageAnimationPlaying = false;
+        this.#runAttempt = false;
         this.#mainInfoPane();
         this.#createMainBattleMenu();
         this.#createMsAttackSubMenu();
@@ -92,6 +95,11 @@ export class BattleMenu {
         return undefined;
     }
 
+    /** @type {boolean} */
+    get isAttemptToRun() {
+        return this.#runAttempt;
+    }
+
     showMainBattleMenu() {
         this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_MAIN;
         this.#battleTextGameObjLine1.setText('what should');
@@ -102,6 +110,7 @@ export class BattleMenu {
         this.#selectBattleMenuOpt = BATTLE_MENU_OPTION.FIGHT;
         this.#mainBattleMenuCursorPhaserImgGameObj.setPosition(BATTLE_MENU_CURSOR_POS.x, BATTLE_MENU_CURSOR_POS.y);
         this.#selectedAttackIndex = undefined;
+        this.#runAttempt = false;
     }
 
     hideMainBattleMenu() {
@@ -513,15 +522,8 @@ export class BattleMenu {
         }
 
         if (this.#selectBattleMenuOpt === BATTLE_MENU_OPTION.RUN) {
-            /* 
-                for the time being, we will display text about the player fail to run
-                and allow the player to navigate back to the main menu
-            */
             this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_RUN;
-            this.updateInfoPaneMessageAndWaitForInput(['You fail to run away...'], () => {
-                this.#swtichToMainBattleMenu();
-            },
-            );        
+            this.#runAttempt = true;      
             return;
         }
 
