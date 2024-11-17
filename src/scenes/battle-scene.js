@@ -43,6 +43,8 @@ export class BattleScene extends Phaser.Scene {
   #attackManager;
   /** @type {boolean} */
   #skipAnimations;
+  /** @type {number} */
+  #activeEnemyAttackIndex;
 
 
 
@@ -54,6 +56,7 @@ export class BattleScene extends Phaser.Scene {
 
   init() {
     this.#activePlayerAttackIndex = -1;
+    this.#activeEnemyAttackIndex = -1;
     const chosenBattleSceneOption = dataManager.store.get(DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_SCENE_ANIMATIONS);
     if (chosenBattleSceneOption === undefined || chosenBattleSceneOption === BATTLE_SCENE_OPTIONS.ON) {
       this.#skipAnimations = false;
@@ -162,7 +165,16 @@ export class BattleScene extends Phaser.Scene {
     }
   }
 
-  #playerAttack() {
+  /**
+   * @param {()=> void} callback 
+   * @returns {void}
+   */
+  #playerAttack(callback) {
+    if (this.#activePlayerMonster.isFainted) {
+      callback();
+      return;
+    }
+
     this.#battleMenu.updateInfoPaneMessageNoInputRequired(
       `${this.#activePlayerMonster.name} used ${this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex].name}`,
       () => {
@@ -173,7 +185,7 @@ export class BattleScene extends Phaser.Scene {
             () => {
               this.#activeEnemyMonster.playTakeDmgAnimation(() => {
                 this.#activeEnemyMonster.takeDamage(this.#activePlayerMonster.baseAttack, () => {
-                  this.#enemyAttack();
+                  callback();
                 });
               });
             }
@@ -183,23 +195,29 @@ export class BattleScene extends Phaser.Scene {
     );
   }
 
-  #enemyAttack() {
+  /**
+   * @param {()=> void} callback 
+   * @returns {void}
+   */
+  #enemyAttack(callback) {
     if (this.#activeEnemyMonster.isFainted) {
-      this.#battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
+      callback();
       return;
     }
 
+    //console.log(`for ${this.#activeEnemyMonster.name} used ${this.#activeEnemyMonster.attacks[this.#activeEnemyAttackIndex].name}`);
+
     this.#battleMenu.updateInfoPaneMessageNoInputRequired(
-      `for ${this.#activeEnemyMonster.name} used ${this.#activeEnemyMonster.attacks[0].name}`,
+      `for ${this.#activeEnemyMonster.name} used ${this.#activeEnemyMonster.attacks[this.#activeEnemyAttackIndex].name}`,
       () => {
         this.time.delayedCall(500, () => {
           this.#attackManager.playAttackAnimation(
-            this.#activeEnemyMonster.attacks[0].animationName,
+            this.#activeEnemyMonster.attacks[this.#activeEnemyAttackIndex].animationName,
             ATTACK_TARGET.PLAYER,
             () => {
               this.#activePlayerMonster.playTakeDmgAnimation(() => {
                 this.#activePlayerMonster.takeDamage(this.#activeEnemyMonster.baseAttack, () => {
-                  this.#battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
+                  callback();
                 });
               });
             }
@@ -307,8 +325,8 @@ export class BattleScene extends Phaser.Scene {
     this.#battleStateMachine.addState({
       name: BATTLE_STATES.ENEMY_INPUT,
       onEnter: () => {
-        // TODO: add feature in a future update
         // pick a random move for the enemy monster, and in the future implement some type of AI behavior
+        this.#activeEnemyAttackIndex = this.#activeEnemyMonster.pickRandomMove();
         this.#battleStateMachine.setState(BATTLE_STATES.BATTLE);
       },
     });
@@ -326,12 +344,28 @@ export class BattleScene extends Phaser.Scene {
         //beacause run attempt failed the enemy will attack
         if (this.#battleMenu.isAttemptToRun) {
           this.time.delayedCall(500, ()=> {
-            this.#enemyAttack();
+            this.#enemyAttack(()=>{
+              this.#battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
+            });
           });
           return;
         }
 
-        this.#playerAttack();
+        const randomNumber = Phaser.Math.Between(0,1);
+        if (randomNumber === 0) {
+          this.#playerAttack(()=>{
+            this.#enemyAttack(()=>{
+              this.#battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
+            });
+          });
+          return;
+        }
+
+        this.#enemyAttack(()=>{
+          this.#playerAttack(()=>{
+            this.#battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
+          });
+        });
       },
     });
 
