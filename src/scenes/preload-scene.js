@@ -6,8 +6,9 @@ import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
 import { WebFontFileLoader } from "../assets/web-font-file-loader.js";
 import { DataUtils } from "../utils/data-utils.js";
 import { dataManager } from "../utils/data-manager.js";
+import { BaseScene } from "./base-scene.js";
 
-export class PreloadScene extends Phaser.Scene{
+export class PreloadScene extends BaseScene{
     constructor() {
         super({
             key: SCENE_KEYS.PRELOAD_SCENE, //unique key for pharse scene
@@ -20,7 +21,8 @@ export class PreloadScene extends Phaser.Scene{
 
 
     preload() {
-        console.log(`[${PreloadScene.name}:preload] invoked`);
+        super.preload();
+
         
         const mosterTamerAssetPath = 'assets/images/monster-tamer';
         const kenneysAssetPath = 'assets/images/kenneys-assets';
@@ -102,7 +104,7 @@ export class PreloadScene extends Phaser.Scene{
 
     create() {
        
-        console.log(`[${PreloadScene.name}:create] invoked`);
+        super.create();
         this.#createAnimation();
         dataManager.loadData();
         this.scene.start(SCENE_KEYS.TITLE_SCENE);
