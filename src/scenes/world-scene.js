@@ -4,6 +4,7 @@ import { TILE_SIZE, TILED_COLLISION_LAYER_ALPHA } from "../config.js";
 import Phaser from "../lib/phaser.js";
 import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
+import { DataUtils } from "../utils/data-utils.js";
 import { getTargetPositionFromGameObjectPositionAndDirection } from "../utils/grid-utils.js";
 import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from "../utils/text-utils.js";
 import { NPC } from "../world/character/npc.js";
@@ -304,7 +305,12 @@ export class WorldScene extends Phaser.Scene {
             console.log(`[${WorldScene.name}:handlePlayerMovementUpdate]  player encountered a monster`);
             this.cameras.main.fadeOut(2000);
             this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-                this.scene.start(SCENE_KEYS.BATTLE_SCENE);
+                /**@type {(import("./battle-scene.js").BattleSceneData)}*/
+                const dataToPass = {
+                    enemyMonsters: [DataUtils.getMonsterById(this,2)],
+                    playerMonsters: dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY),
+                }
+                this.scene.start(SCENE_KEYS.BATTLE_SCENE,dataToPass);
             });
         }
     }

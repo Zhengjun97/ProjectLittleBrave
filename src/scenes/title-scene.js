@@ -110,7 +110,7 @@ export class TitleScene extends Phaser.Scene{
             }
       
             if (this.#selectedMenuOption === MAIN_MENU_OPTIONS.NEW_GAME) {
-              dataManager.startNewGame();
+              dataManager.startNewGame(this);
             }
       
             this.scene.start(SCENE_KEYS.WORLD_SCENE);
