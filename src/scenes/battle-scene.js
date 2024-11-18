@@ -67,7 +67,16 @@ export class BattleScene extends BaseScene {
     });
   }
 
-  init() {
+  init(data) {
+    super.init();
+    this.#sceneData = data;
+
+    if(Object.keys(data).length === 0){
+      this.#sceneData = {
+        enemyMonsters: [DataUtils.getMonsterById(this,2)],
+        playerMonsters: [dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0]]
+      }
+    }
     this.#activePlayerAttackIndex = -1;
     this.#activeEnemyAttackIndex = -1;
     this.#activePlayerMonsterPartyIndex = 0;
