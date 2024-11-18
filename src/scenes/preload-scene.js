@@ -1,13 +1,14 @@
 
-import { ATTACK_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
+import { ATTACK_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_PARTY_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
 import Phaser from "../lib/phaser.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
 import { WebFontFileLoader } from "../assets/web-font-file-loader.js";
 import { DataUtils } from "../utils/data-utils.js";
 import { dataManager } from "../utils/data-manager.js";
+import { BaseScene } from "./base-scene.js";
 
-export class PreloadScene extends Phaser.Scene{
+export class PreloadScene extends BaseScene{
     constructor() {
         super({
             key: SCENE_KEYS.PRELOAD_SCENE, //unique key for pharse scene
@@ -20,7 +21,8 @@ export class PreloadScene extends Phaser.Scene{
 
 
     preload() {
-        console.log(`[${PreloadScene.name}:preload] invoked`);
+        super.preload();
+
         
         const mosterTamerAssetPath = 'assets/images/monster-tamer';
         const kenneysAssetPath = 'assets/images/kenneys-assets';
@@ -53,6 +55,9 @@ export class PreloadScene extends Phaser.Scene{
         this.load.image(UI_ASSET_KEYS.MENU_BACKGROUND_GREEN, `${kenneysAssetPath}/ui-space-expansion/glassPanel_green.png`);
 
 
+        this.load.image(UI_ASSET_KEYS.BULE_BUTTON, `${kenneysAssetPath}/ui-pack/blue_button01.png`);
+        this.load.image(UI_ASSET_KEYS.BULE_BUTTON_SELECTED, `${kenneysAssetPath}/ui-pack/blue_button00.png`);
+        
         //load json data
         this.load.json(DATA_ASSET_KEYS.ATTACKS, 'assets/data/attacks.json');
         this.load.json(DATA_ASSET_KEYS.ANIMATIONS, 'assets/data/animations.json');
@@ -98,13 +103,15 @@ export class PreloadScene extends Phaser.Scene{
         this.load.image(TITLE_ASSET_KEYS.PANEL, `${mosterTamerAssetPath}/ui/title/title_background.png`);
         this.load.image(TITLE_ASSET_KEYS.TITLE, `${mosterTamerAssetPath}/ui/title/title_text.png`);
 
-
+        //ui components for party
+        this.load.image(MONSTER_PARTY_ASSET_KEYS.PARTY_BACKGROUND, `${mosterTamerAssetPath}/ui/monster-party/background.png`);
+        this.load.image(MONSTER_PARTY_ASSET_KEYS.MONSTER_DETAILES_BACKGROUND, `${mosterTamerAssetPath}/ui/monster-party/monster-details-background.png`);
 
     }
 
     create() {
        
-        console.log(`[${PreloadScene.name}:create] invoked`);
+        super.create();
         this.#createAnimation();
         dataManager.init(this);
         dataManager.loadData();

@@ -11,6 +11,7 @@ import { NPC } from "../world/character/npc.js";
 import { Player } from "../world/character/player.js";
 import { DialogUi } from "../world/dialog-ui.js";
 import { Menu } from "../world/menu/menu.js";
+import { BaseScene } from "./base-scene.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 
 
@@ -48,8 +49,6 @@ const TILED_NPC_PROPERTY = Object.freeze({
 export class WorldScene extends Phaser.Scene {
     /**@type {Player} */
     #player;
-    /**@type {Controls} */
-    #controls;
     /**@type {Phaser.Tilemaps.TilemapLayer} */
     #encounterLayer;
     /**@type {boolean} */
@@ -105,7 +104,8 @@ export class WorldScene extends Phaser.Scene {
     }
 
     create() {
-        console.log(`[${WorldScene.name}:preload] invoked`);
+        super.create();
+
 
         const x = 6 * TILE_SIZE;
         const y = 22 * TILE_SIZE;
@@ -179,8 +179,7 @@ export class WorldScene extends Phaser.Scene {
 
         this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_FOREGROUND, 0).setOrigin(0);
 
-        this.#controls = new Controls(this);
-
+ 
         //create dialog ui
         this.#dialogUi = new DialogUi(this, 1280);
 
@@ -208,14 +207,15 @@ export class WorldScene extends Phaser.Scene {
    * @returns {void}
    */
   update(time) {
+    super.update();
     if (this.#monsterEncountered) {
       this.#player.update(time);
       return;
     }
 
-    const wasSpaceKeyPressed = this.#controls.wasSpaceKeyPressed();
-    const selectedDirectionHelDown = this.#controls.getDirectionPressedDown();
-    const selectedDirectionPressedOnce = this.#controls.getDirectionKeyJustPressed();
+    const wasSpaceKeyPressed = this._contorls.wasSpaceKeyPressed();
+    const selectedDirectionHelDown = this._contorls.getDirectionPressedDown();
+    const selectedDirectionPressedOnce = this._contorls.getDirectionKeyJustPressed();
     if (selectedDirectionHelDown !== DIRECTION.NONE && !this.#isPlayerInputLocked()) {
       this.#player.moveCharacter(selectedDirectionHelDown);
     }
@@ -224,7 +224,7 @@ export class WorldScene extends Phaser.Scene {
       this.#handlePlayerInteraction();
     }
 
-    if (this.#controls.wasEnterKeyPressed() && !this.#player.isMoving) {
+    if (this._contorls.wasEnterKeyPressed() && !this.#player.isMoving) {
       if (this.#dialogUi.isVisible) {
         return;
       }
@@ -256,7 +256,7 @@ export class WorldScene extends Phaser.Scene {
         // TODO: handle other selected menu options
       }
 
-      if (this.#controls.wasBackKeyPressed()) {
+      if (this._contorls.wasBackKeyPressed()) {
         this.#menu.hide();
       }
     }
@@ -361,7 +361,7 @@ export class WorldScene extends Phaser.Scene {
     }
 
     #isPlayerInputLocked() {
-        return this.#controls.isInputLocked || this.#dialogUi.isVisible || this.#menu.isVisible;
+        return this._contorls.isInputLocked || this.#dialogUi.isVisible || this.#menu.isVisible;
       }
 
     /**
