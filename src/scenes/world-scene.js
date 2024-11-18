@@ -46,7 +46,7 @@ const TILED_NPC_PROPERTY = Object.freeze({
  * @property {boolean} isPlayerKnockOut
  */
 
-export class WorldScene extends Phaser.Scene {
+export class WorldScene extends BaseScene {
     /**@type {Player} */
     #player;
     /**@type {Phaser.Tilemaps.TilemapLayer} */
@@ -77,7 +77,7 @@ export class WorldScene extends Phaser.Scene {
      * @returns {void}
      */
     init(data) {
-        console.log(`[${WorldScene.name}:init] invoked`)
+        super.init();
         this.#sceneData = data;
 
         if(Object.keys(data).length === 0){

@@ -13,7 +13,7 @@ export class BaseScene extends Phaser.Scene {
         }
     }
 
-    init() {
+    init(data) {
         this._log(`[${this.constructor.name}:init] invoked`);
     }
 
