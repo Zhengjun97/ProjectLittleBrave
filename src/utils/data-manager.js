@@ -3,6 +3,7 @@ import { DIRECTION } from "../common/direction.js";
 import { BATTLE_SCENE_OPTIONS, BATTLE_STYLE_OPTIONS, SOUND_OPTIONS, TEXT_SPEED_OPTIONS } from "../common/options.js";
 import { TEXT_SPEED, TILE_SIZE } from "../config.js";
 import Phaser from "../lib/phaser.js";
+import { DataUtils } from "./data-utils.js";
 import { exhaustiveGuard } from "./guard.js";
 
 const LOCAL_STORAGE_KEY ='MONSTER_TAMER_DATA';
@@ -52,20 +53,7 @@ const initialState = {
     },
     gameStarted: false,
     monsters: {
-    inParty: [
-      {
-        id: 1,
-        monsterId: 1,
-        name: MONSTER_ASSET_KEYS.IGUANIGNITE,
-        assetKey: MONSTER_ASSET_KEYS.IGUANIGNITE,
-        assetFrame: 0,
-        currentHp: 25,
-        maxHp: 25,
-        attackIds: [2],
-        baseAttack: 15,
-        currentLevel: 5,
-      },
-    ],
+    inParty: [],
   },
 };
 
@@ -97,6 +85,18 @@ class DataManager extends Phaser.Events.EventEmitter {
         return this.#store;
     }
 
+    /**
+     * @param {Phaser.Scene} scene 
+     * @returns {void}
+     */
+    init(scene){
+      const startingMonster = DataUtils.getMonsterById(scene,1);
+      this.#store.set(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY,[startingMonster]);
+    }
+
+    /**
+     * @returns {void}
+     */
     loadData(){
         if(typeof Storage === 'undefined'){
             console.warn(`[${DataManager.name}:loadData] localStorage is not supported, will not able to save and load data`);
@@ -125,8 +125,11 @@ class DataManager extends Phaser.Events.EventEmitter {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
     }
 
-
-    startNewGame(){
+    /**
+     * @param {Phaser.Scene} scene 
+     * @returns {void}
+     */
+    startNewGame(scene){
         //get existing data before resetting all of the data, so we can persist options data
         const existingData = {...this.#dataManagerDataToGlobalStateObject()};
         existingData.player.position = {...initialState.player.position};
@@ -138,6 +141,7 @@ class DataManager extends Phaser.Events.EventEmitter {
 
         this.#store.reset();
         this.#updateDataManager(existingData);
+        this.init(scene);
         this.saveData();
     }
 
