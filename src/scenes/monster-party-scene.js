@@ -1,7 +1,9 @@
 import { BATTLE_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_PARTY_ASSET_KEYS, UI_ASSET_KEYS } from "../assets/asset-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
+import { DIRECTION } from "../common/direction.js";
 import Phaser from "../lib/phaser.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
+import { exhaustiveGuard } from "../utils/guard.js";
 import { BaseScene } from "./base-scene.js";
 import { HealthBar } from "./battle/ui/menu/health-bar.js";
 import { SCENE_KEYS } from "./scene-keys.js";
@@ -76,14 +78,43 @@ export class MonsterPartyScene extends BaseScene {
         this.#updateInfoContainerText();
 
         //create the character
-        this.#monster.forEach((monster, index)=>{
+        this.#monster.forEach((monster, index) => {
             const isEven = index % 2 === 0;
-            const x = isEven ?MONSTER_PARTY_POSTITION.EVEN.x: MONSTER_PARTY_POSTITION.ODD.x; 
-            const y = (isEven ?MONSTER_PARTY_POSTITION.EVEN.y: MONSTER_PARTY_POSTITION.ODD.y) + MONSTER_PARTY_POSTITION.increment * Math.floor(index / 2);
-            this.#createMonster(x,y, monster);
+            const x = isEven ? MONSTER_PARTY_POSTITION.EVEN.x : MONSTER_PARTY_POSTITION.ODD.x;
+            const y = (isEven ? MONSTER_PARTY_POSTITION.EVEN.y : MONSTER_PARTY_POSTITION.ODD.y) + MONSTER_PARTY_POSTITION.increment * Math.floor(index / 2);
+            this.#createMonster(x, y, monster);
         });
+        this.#movePlayerInputCursor(DIRECTION.NONE);
         //this.add.image(0,0,BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0).setScale(1.1, 1.2);
-        
+
+    }
+
+    update() {
+        super.update();
+
+        if (this._contorls.isInputLocked) {
+            return;
+        }
+
+        if (this._contorls.wasBackKeyPressed()) {
+            this.#goBackToPreviousScene();
+            return;
+        }
+        const wasSpaceKeyPressed = this._contorls.wasSpaceKeyPressed();
+        if (wasSpaceKeyPressed) {
+            if (this.#selectedPartyMonsterIndex === -1) {
+                this.#goBackToPreviousScene();
+                return;
+            }
+            this._contorls.lockInput = true;
+            this.scene.start(SCENE_KEYS.WORLD_SCENE);
+            return;
+        }
+        const selectedDirection = this._contorls.getDirectionKeyJustPressed();
+        if (selectedDirection !== DIRECTION.NONE) {
+            this.#movePlayerInputCursor(selectedDirection);
+            this.#updateInfoContainerText();
+        }
     }
 
     #updateInfoContainerText() {
@@ -104,6 +135,7 @@ export class MonsterPartyScene extends BaseScene {
     #createMonster(x, y, monsterDetail) {
         const container = this.add.container(x, y, []);
         const background = this.add.image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0).setScale(1.1, 1.2);
+        this.#monsterPartyBackgrounds.push(background);
 
         const leftShadowCap = this.add.image(160, 67, HEALTH_BAR_ASSET_KEYS.LEFT_CAP_SHADOW).setOrigin(0).setAlpha(0.5);
         const midShadowCap = this.add.image(leftShadowCap.x + leftShadowCap.width, 67, HEALTH_BAR_ASSET_KEYS.MIDDLE_SHADOW).setOrigin(0).setAlpha(0.5);
@@ -120,7 +152,7 @@ export class MonsterPartyScene extends BaseScene {
         const monsterNameGameText = this.add.text(162, 36, monsterDetail.name, { fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#ffffff', fontSize: '30px' });
 
 
-        const monsterHealthBarLevelText = this.add.text(26,  116, `Lv. ${monsterDetail.currentLevel}`, { fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#ffffff', fontSize: '22px' });
+        const monsterHealthBarLevelText = this.add.text(26, 116, `Lv. ${monsterDetail.currentLevel}`, { fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#ffffff', fontSize: '22px' });
 
 
         const monsterHpText = this.add.text(164, 75, 'HP', { fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#FF6505', fontSize: '24px', fontStyle: 'italic' });
@@ -131,4 +163,58 @@ export class MonsterPartyScene extends BaseScene {
         container.add([background, leftShadowCap, midShadowCap, rightShadowCap, healthBar.container, monsterImage, monsterNameGameText, monsterHealthBarLevelText, monsterHpText, healthBarTextGameObject]);
         return container;
     }
+
+    #goBackToPreviousScene() {
+        this._contorls.lockInput = true;
+        this.scene.start(SCENE_KEYS.WORLD_SCENE);
+    }
+
+    /**
+     * @param {import("../common/direction.js").Direction} direction 
+     * @returns {void}
+     */
+    #movePlayerInputCursor(direction) {
+        switch (direction) {
+            case DIRECTION.UP:
+                if (this.#selectedPartyMonsterIndex === -1) {
+                    this.#selectedPartyMonsterIndex = this.#monster.length;
+                }
+                this.#selectedPartyMonsterIndex -= 1;
+                if (this.#selectedPartyMonsterIndex < 0) {
+                    this.#selectedPartyMonsterIndex = 0;
+                }
+                this.#monsterPartyBackgrounds[this.#selectedPartyMonsterIndex].setAlpha(1);
+                this.#cancelButton.setTexture(UI_ASSET_KEYS.BULE_BUTTON, 0).setAlpha(0.7);
+                break;
+            case DIRECTION.DOWN:
+                if (this.#selectedPartyMonsterIndex === -1) {
+                    break;
+                }
+                this.#selectedPartyMonsterIndex += 1;
+                if (this.#selectedPartyMonsterIndex > this.#monster.length -1) {
+                    this.#selectedPartyMonsterIndex = -1;
+                }
+                if (this.#selectedPartyMonsterIndex === -1) {
+                    this.#cancelButton.setTexture(UI_ASSET_KEYS.BULE_BUTTON_SELECTED, 0).setAlpha(1);
+                    break;
+                }
+                this.#monsterPartyBackgrounds[this.#selectedPartyMonsterIndex].setAlpha(1);
+                break;
+            case DIRECTION.LEFT:
+            case DIRECTION.RIGHT:
+            case DIRECTION.NONE:
+                break;
+            default:
+                exhaustiveGuard(direction);
+        }
+
+        this.#monsterPartyBackgrounds.forEach((obj, index)=>{
+            if (index === this.#selectedPartyMonsterIndex) {
+                return;
+            }
+            obj.setAlpha(0.7);
+        })
+    }
+
+
 }
