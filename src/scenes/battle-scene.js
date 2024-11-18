@@ -31,7 +31,6 @@ const BATTLE_STATES = Object.freeze({
  * @type {object}
  * @property {import("../types/typedef.js").Monster[]} playerMonsters
  * @property {import("../types/typedef.js").Monster[]} enemyMonsters
-
  */
 
 
@@ -59,6 +58,8 @@ export class BattleScene extends Phaser.Scene {
   #sceneData;
   /** @type {number} */
   #activePlayerMonsterPartyIndex;
+  /** @type {boolean} */
+  #playerKnockOut;
 
 
 
@@ -79,7 +80,7 @@ export class BattleScene extends Phaser.Scene {
       this.#sceneData = {
         enemyMonsters: [DataUtils.getMonsterById(this,2)],
         playerMonsters: [dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0]]
-      }
+      };
     }
 
     this.#activePlayerAttackIndex = -1;
@@ -91,6 +92,7 @@ export class BattleScene extends Phaser.Scene {
       return;
     }
     this.#skipAnimations = true;
+    this.#playerKnockOut = false;
   }
 
   create() {
@@ -266,6 +268,7 @@ export class BattleScene extends Phaser.Scene {
         this.#battleMenu.updateInfoPaneMessageAndWaitForInput(
           [`${this.#activePlayerMonster.name} dead`, 'You lost, escaping to safety...'],
           () => {
+            this.#playerKnockOut = true;
             this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
           },
         );
@@ -277,9 +280,13 @@ export class BattleScene extends Phaser.Scene {
   }
 
   #transitionToNextScene() {
+    /**@type {import('./world-scene.js').WorldSceneData} */
+    const sceneDataToPass = {
+      isPlayerKnockOut: this.#playerKnockOut,
+    };
     this.cameras.main.fadeOut(600, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start(SCENE_KEYS.WORLD_SCENE);
+      this.scene.start(SCENE_KEYS.WORLD_SCENE,sceneDataToPass);
     });
   }
 

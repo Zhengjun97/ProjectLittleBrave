@@ -39,6 +39,12 @@ const TILED_NPC_PROPERTY = Object.freeze({
     FRAME: 'frame',
 });
 
+/**
+ * @typedef WorldSceneData
+ * @type {object}
+ * @property {boolean} isPlayerKnockOut
+ */
+
 export class WorldScene extends Phaser.Scene {
     /**@type {Player} */
     #player;
@@ -58,6 +64,8 @@ export class WorldScene extends Phaser.Scene {
     #npcPlayerIsInteractingWith;
     /**@type {Menu} */
     #menu;
+    /**@type {WorldSceneData} */
+    #sceneData;
 
     constructor() {
         super({
@@ -65,10 +73,35 @@ export class WorldScene extends Phaser.Scene {
         });
     }
 
-    init() {
+    /**
+     * @param {WorldSceneData} data 
+     * @returns {void}
+     */
+    init(data) {
         console.log(`[${WorldScene.name}:init] invoked`)
+        this.#sceneData = data;
+
+        if(Object.keys(data).length === 0){
+            this.#sceneData = {
+                isPlayerKnockOut: false,
+            };
+        }
+
+        console.log(this.#sceneData);
+
         this.#monsterEncountered = false;
         this.#npcPlayerIsInteractingWith = undefined;
+
+        //UPDATE plauyer location, and map data if the player was knocked out in a battle
+        if(this.#sceneData.isPlayerKnockOut){
+            dataManager.store.set(DATA_MANAGER_STORE_KEYS.PLAYER_POSITION, {
+                x: 6 * TILE_SIZE,
+                y: 21 * TILE_SIZE,
+            });
+
+            dataManager.store.set(DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION,DIRECTION.DOWN);
+
+        }
     }
 
     create() {
@@ -154,7 +187,19 @@ export class WorldScene extends Phaser.Scene {
         //create Menu
         this.#menu = new Menu(this);
 
-        this.cameras.main.fadeIn(1000, 0, 0, 0);
+        this.cameras.main.fadeIn(1000, 0, 0, 0,(camera,progress) =>{
+            if(progress === 1){
+                //if the player was knocked out, we want to lock nput, heal player, and then have npc show message
+                if(this.#sceneData.isPlayerKnockOut){
+                    this.#healPlayerParty();
+                    this.#dialogUi.showDialogModal([
+                        'It looks like you are exhausted...',
+                        'I went ahead and healed you.'
+                    ]);
+                }
+            }
+        });
+
         dataManager.store.set(DATA_MANAGER_STORE_KEYS.GAME_STARTED, true);
     }
 
@@ -382,5 +427,14 @@ export class WorldScene extends Phaser.Scene {
 
     #handlePlayerDirectionUpdate(){
         dataManager.store.set(DATA_MANAGER_STORE_KEYS.PLAYER_DIRECTION, this.#player.direction);
+    }
+
+    #healPlayerParty(){
+        /**@type {import("../types/typedef.js").Monster[]} */
+        const monsters = dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY);
+        monsters.forEach((monster) => {
+            monster.currentHp = monster.maxHp;
+        })
+        dataManager.store.set(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY,monsters);
     }
 }
