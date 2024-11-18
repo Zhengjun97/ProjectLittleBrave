@@ -4,6 +4,7 @@ import { BATTLE_SCENE_OPTIONS } from "../common/options.js";
 import Phaser from "../lib/phaser.js";
 import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
+import { DataUtils } from "../utils/data-utils.js";
 import { createSceneTransition } from "../utils/scene-transition.js";
 import { StateMachine } from "../utils/state-machine.js";
 import { BaseScene } from "./base-scene.js";
@@ -26,6 +27,15 @@ const BATTLE_STATES = Object.freeze({
   RUN_ATTEMPT: 'RUN_ATTEMPT',
 });
 
+/**
+ * @typedef BattleSceneData
+ * @type {object}
+ * @property {import("../types/typedef.js").Monster[]} playerMonsters
+ * @property {import("../types/typedef.js").Monster[]} enemyMonsters
+
+ */
+
+
 
 export class BattleScene extends BaseScene {
   /** @type {BattleMenu} */
@@ -44,6 +54,10 @@ export class BattleScene extends BaseScene {
   #skipAnimations;
   /** @type {number} */
   #activeEnemyAttackIndex;
+  /** @type {BattleSceneData} */
+  #sceneData;
+  /** @type {number} */
+  #activePlayerMonsterPartyIndex;
 
 
 
@@ -54,10 +68,9 @@ export class BattleScene extends BaseScene {
   }
 
   init() {
-    super.init();
-
     this.#activePlayerAttackIndex = -1;
     this.#activeEnemyAttackIndex = -1;
+    this.#activePlayerMonsterPartyIndex = 0;
     const chosenBattleSceneOption = dataManager.store.get(DATA_MANAGER_STORE_KEYS.OPTIONS_BATTLE_SCENE_ANIMATIONS);
     if (chosenBattleSceneOption === undefined || chosenBattleSceneOption === BATTLE_SCENE_OPTIONS.ON) {
       this.#skipAnimations = false;
@@ -76,24 +89,14 @@ export class BattleScene extends BaseScene {
     // render out the player and enemy monsters
     this.#activeEnemyMonster = new EnemyBattleMonster({
       scene: this,
-      monsterDetails: {
-        id: 2,
-        monsterId: 2,
-        name: MONSTER_ASSET_KEYS.CARNODUSK,
-        assetKey: MONSTER_ASSET_KEYS.CARNODUSK,
-        assetFrame: 0,
-        currentHp: 25,
-        maxHp: 25,
-        attackIds: [1],
-        baseAttack: 5,
-        currentLevel: 5,
-      },
+      monsterDetails: this.#sceneData.enemyMonsters[0],
       skipBattleAnimations: this.#skipAnimations,
     });
 
     this.#activePlayerMonster = new PlayerBattleMonster({
       scene: this,
-      monsterDetails: dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0], skipBattleAnimations: this.#skipAnimations,
+      monsterDetails: this.#sceneData.playerMonsters[0],
+      skipBattleAnimations: this.#skipAnimations,
     });
 
     // render out the main info and sub info panes
@@ -231,6 +234,9 @@ export class BattleScene extends BaseScene {
   }
 
   #postBattleSequenceCheck() {
+    this.#sceneData.playerMonsters[this.#activePlayerMonsterPartyIndex].currentHp = this.#activePlayerMonster.currentHp;
+    dataManager.store.set(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY, this.#sceneData.playerMonsters);
+
     if (this.#activeEnemyMonster.isFainted) {
       this.#activeEnemyMonster.playDeathAnimation(() => {
         this.#battleMenu.updateInfoPaneMessageAndWaitForInput(
