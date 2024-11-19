@@ -1,7 +1,8 @@
-import { TITLE_ASSET_KEYS, UI_ASSET_KEYS } from "../assets/asset-keys.js";
+import { AUDIO_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS } from "../assets/asset-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
 import { DIRECTION } from "../common/direction.js";
 import Phaser from "../lib/phaser.js";
+import { playBackgroundMusic } from "../utils/audio-utils.js";
 import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { exhaustiveGuard } from "../utils/guard.js";
@@ -114,7 +115,10 @@ export class TitleScene extends BaseScene{
       
             this.scene.start(SCENE_KEYS.WORLD_SCENE);
           });
-      
+        
+          playBackgroundMusic(this,AUDIO_ASSET_KEYS.TITLE);
+
+          
         }
 
 

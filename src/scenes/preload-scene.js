@@ -1,5 +1,5 @@
 
-import { ATTACK_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_PARTY_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
+import { ATTACK_ASSET_KEYS, AUDIO_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_PARTY_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
 import Phaser from "../lib/phaser.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
@@ -107,6 +107,17 @@ export class PreloadScene extends BaseScene{
         this.load.image(MONSTER_PARTY_ASSET_KEYS.PARTY_BACKGROUND, `${mosterTamerAssetPath}/ui/monster-party/background.png`);
         this.load.image(MONSTER_PARTY_ASSET_KEYS.MONSTER_DETAILES_BACKGROUND, `${mosterTamerAssetPath}/ui/monster-party/monster-details-background.png`);
 
+        //load audio
+        this.load.setPath('assets/audio/xDeviruchi');
+        this.load.audio(AUDIO_ASSET_KEYS.MAIN, 'And-the-Journey-Begins.wav');
+        this.load.audio(AUDIO_ASSET_KEYS.BATTLE, 'Decisive-Battle.wav');
+        this.load.audio(AUDIO_ASSET_KEYS.TITLE, 'Title-Theme.wav');
+        
+        this.load.setPath('assets/audio/leohpaz');
+        this.load.audio(AUDIO_ASSET_KEYS.CLAW, '03_Claw_03.wav');
+        this.load.audio(AUDIO_ASSET_KEYS.GRASS, '03_Step_grass_03.wav');
+        this.load.audio(AUDIO_ASSET_KEYS.ICE, '13_Ice_explosion_01.wav');
+        this.load.audio(AUDIO_ASSET_KEYS.FLEE, '51_Flee_02.wav');
     }
 
     create() {
@@ -115,7 +126,7 @@ export class PreloadScene extends BaseScene{
         this.#createAnimation();
         dataManager.init(this);
         dataManager.loadData();
-        this.scene.start(SCENE_KEYS.MONSTER_PARTY_SCENE);
+        this.scene.start(SCENE_KEYS.TITLE_SCENE);
     }
 
     #createAnimation() {

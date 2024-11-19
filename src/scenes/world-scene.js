@@ -1,7 +1,8 @@
-import { WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
+import { AUDIO_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
 import { DIRECTION } from "../common/direction.js";
 import { TILE_SIZE, TILED_COLLISION_LAYER_ALPHA } from "../config.js";
 import Phaser from "../lib/phaser.js";
+import { playBackgroundMusic } from "../utils/audio-utils.js";
 import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { DataUtils } from "../utils/data-utils.js";
@@ -200,6 +201,10 @@ export class WorldScene extends BaseScene {
         });
 
         dataManager.store.set(DATA_MANAGER_STORE_KEYS.GAME_STARTED, true);
+
+        //add audio
+        playBackgroundMusic(this,AUDIO_ASSET_KEYS.MAIN);
+
     }
 
     /**

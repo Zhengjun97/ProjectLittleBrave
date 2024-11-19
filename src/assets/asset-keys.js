@@ -66,3 +66,15 @@ export const MONSTER_PARTY_ASSET_KEYS = Object.freeze({
     PARTY_BACKGROUND: 'PARTY_BACKGROUND',
     MONSTER_DETAILES_BACKGROUND: 'MONSTER_DETAILES_BACKGROUND',
 });
+
+
+export const AUDIO_ASSET_KEYS = Object.freeze({
+    TITLE: 'TITLE',
+    BATTLE: 'BATTLE',
+    MAIN: 'MAIN',
+    FLEE: 'FLEE',
+    GRASS: 'GRASS',
+    CLAW: 'CLAW',
+    ICE: 'ICE',
+
+});
