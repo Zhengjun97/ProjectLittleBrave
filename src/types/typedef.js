@@ -37,6 +37,7 @@ import { ATTACK_KEYS } from "../scenes/battle/attacks/attack-keys.js";
  * @property {number} id
  * @property {string} name
  * @property {import("../scenes/battle/attacks/attack-keys.js").AttackKeys} animationName
+ * @property {string} audioKey
  */
 
 /**

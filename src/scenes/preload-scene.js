@@ -7,6 +7,7 @@ import { WebFontFileLoader } from "../assets/web-font-file-loader.js";
 import { DataUtils } from "../utils/data-utils.js";
 import { dataManager } from "../utils/data-manager.js";
 import { BaseScene } from "./base-scene.js";
+import { setGlobalSoundSettings } from "../utils/audio-utils.js";
 
 export class PreloadScene extends BaseScene{
     constructor() {
@@ -126,6 +127,9 @@ export class PreloadScene extends BaseScene{
         this.#createAnimation();
         dataManager.init(this);
         dataManager.loadData();
+        
+        setGlobalSoundSettings(this);
+
         this.scene.start(SCENE_KEYS.TITLE_SCENE);
     }
 

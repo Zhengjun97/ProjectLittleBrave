@@ -3,6 +3,7 @@ import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
 import { DIRECTION } from "../common/direction.js";
 import { BATTLE_SCENE_OPTIONS, BATTLE_STYLE_OPTIONS, OPTION_MENU_OPTIONS, SOUND_OPTIONS, TEXT_SPEED_OPTIONS } from "../common/options.js";
 import Phaser from "../lib/phaser.js";
+import { setGlobalSoundSettings } from "../utils/audio-utils.js";
 import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { exhaustiveGuard } from "../utils/guard.js";
@@ -191,6 +192,7 @@ export class OptionsScene extends BaseScene {
         if (this._contorls.wasSpaceKeyPressed() && this.#selectedOptionMenu === OPTION_MENU_OPTIONS.CONFIRM) {
             this._contorls.lockInput = true;
             this.#updateOptionDataInDataManager();
+            setGlobalSoundSettings(this);
             this.cameras.main.fadeOut(500, 0, 0, 0);
             return;
         }

@@ -2,7 +2,7 @@ import { AUDIO_ASSET_KEYS, MONSTER_ASSET_KEYS } from "../assets/asset-keys.js";
 import { DIRECTION } from "../common/direction.js";
 import { BATTLE_SCENE_OPTIONS } from "../common/options.js";
 import Phaser from "../lib/phaser.js";
-import { playBackgroundMusic } from "../utils/audio-utils.js";
+import { playBackgroundMusic, playSoundFx } from "../utils/audio-utils.js";
 import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { DataUtils } from "../utils/data-utils.js";
@@ -200,6 +200,9 @@ export class BattleScene extends BaseScene {
       `${this.#activePlayerMonster.name} used ${this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex].name}`,
       () => {
         this.time.delayedCall(500, () => {
+          this.time.delayedCall(100,()=>{
+            playSoundFx(this,this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex].audioKey);
+          });
           this.#attackManager.playAttackAnimation(
             this.#activePlayerMonster.attacks[this.#activePlayerAttackIndex].animationName,
             ATTACK_TARGET.ENEMY,
@@ -232,6 +235,9 @@ export class BattleScene extends BaseScene {
       `for ${this.#activeEnemyMonster.name} used ${this.#activeEnemyMonster.attacks[this.#activeEnemyAttackIndex].name}`,
       () => {
         this.time.delayedCall(500, () => {
+          this.time.delayedCall(100,()=>{
+            playSoundFx(this,this.#activeEnemyMonster.attacks[this.#activeEnemyAttackIndex].audioKey);
+          });
           this.#attackManager.playAttackAnimation(
             this.#activeEnemyMonster.attacks[this.#activeEnemyAttackIndex].animationName,
             ATTACK_TARGET.PLAYER,
@@ -421,6 +427,7 @@ export class BattleScene extends BaseScene {
           this.#battleMenu.updateInfoPaneMessageAndWaitForInput(
             [`You got away safely!`],
             () => {
+              playSoundFx(this,AUDIO_ASSET_KEYS.FLEE);
               this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
             },
           );
