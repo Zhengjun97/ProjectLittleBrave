@@ -24,6 +24,11 @@ const MONSTER_PARTY_POSTITION = Object.freeze({
     increment: 150,
 });
 
+/**
+ * @typedef MonsterPartySceneData
+ * @type {object}
+ * @property {string} previousSceneName
+ */
 export class MonsterPartyScene extends BaseScene {
     /**@type {Phaser.GameObjects.Image[]} */
     #monsterPartyBackgrounds;
@@ -39,7 +44,7 @@ export class MonsterPartyScene extends BaseScene {
     #selectedPartyMonsterIndex;
     /**@type {import("../types/typedef.js").Monster[]} */
     #monster;
-
+    /**@type {MonsterPartySceneData} */
     #sceneData;
 
 
@@ -50,6 +55,10 @@ export class MonsterPartyScene extends BaseScene {
         });
     }
 
+    /**
+     * @param {MonsterPartySceneData} data 
+     * @returns {void}
+     */
     init(data) {
         super.init(data);
 
