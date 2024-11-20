@@ -107,7 +107,7 @@ export class MonsterPartyScene extends BaseScene {
                 return;
             }
             this._contorls.lockInput = true;
-            this.scene.start(SCENE_KEYS.WORLD_SCENE);
+            this.scene.start(SCENE_KEYS.MONSTER_DETAILS_SCENE);
             return;
         }
         const selectedDirection = this._contorls.getDirectionKeyJustPressed();
