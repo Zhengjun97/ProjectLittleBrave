@@ -40,6 +40,8 @@ export class MonsterPartyScene extends BaseScene {
     /**@type {import("../types/typedef.js").Monster[]} */
     #monster;
 
+    #sceneData;
+
 
 
     constructor() {
@@ -48,9 +50,10 @@ export class MonsterPartyScene extends BaseScene {
         });
     }
 
-    init() {
-        super.init();
+    init(data) {
+        super.init(data);
 
+        this.#sceneData = data;
         this.#monsterPartyBackgrounds = [];
         this.#healthBars = [];
         this.#healthBarsTextGameObjects = [];
@@ -62,6 +65,7 @@ export class MonsterPartyScene extends BaseScene {
         super.create();
 
         //create background
+        this.add.rectangle(0,0, this.scale.width, this.scale.height, 0x000000, 1).setOrigin(0);
         this.add.tileSprite(0, 0, this.scale.width, this.scale.height, MONSTER_PARTY_ASSET_KEYS.PARTY_BACKGROUND, 0).setOrigin(0).setAlpha(0.7);
         //create button
         const buttonContainer = this.add.container(883, 519, []);
@@ -106,8 +110,13 @@ export class MonsterPartyScene extends BaseScene {
                 this.#goBackToPreviousScene();
                 return;
             }
+
             this._contorls.lockInput = true;
-            this.scene.start(SCENE_KEYS.MONSTER_DETAILS_SCENE);
+            const sceneDataToPass = {
+                monster: this.#monster[this.#selectedPartyMonsterIndex]
+            };
+            this.scene.launch(SCENE_KEYS.MONSTER_DETAILS_SCENE, sceneDataToPass);
+            this.scene.pause(SCENE_KEYS.MONSTER_PARTY_SCENE);
             return;
         }
         const selectedDirection = this._contorls.getDirectionKeyJustPressed();
@@ -166,7 +175,8 @@ export class MonsterPartyScene extends BaseScene {
 
     #goBackToPreviousScene() {
         this._contorls.lockInput = true;
-        this.scene.start(SCENE_KEYS.WORLD_SCENE);
+        this.scene.stop(SCENE_KEYS.MONSTER_PARTY_SCENE);
+        this.scene.resume(this.#sceneData.previousSceneName);
     }
 
     /**

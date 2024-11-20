@@ -130,7 +130,7 @@ export class PreloadScene extends BaseScene{
         
         setGlobalSoundSettings(this);
 
-        this.scene.start(SCENE_KEYS.MONSTER_PARTY_SCENE);
+        this.scene.start(SCENE_KEYS.WORLD_SCENE);
     }
 
     #createAnimation() {

@@ -25,10 +25,14 @@ export class MonsterDetailsScene extends BaseScene {
         });
     }
 
-    init() {
-        super.init();
+    init(data) {
+        super.init(data);
 
-        this.#monsterDetails = dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0];
+        this.#monsterDetails = data.monster;
+        if (this.#monsterDetails === undefined) {
+            this.#monsterDetails = dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY)[0];
+        }
+        
         this.#monsterAttack = [];
         this.#monsterDetails.attackIds.forEach((attackId) =>{
             const monsterAttack = DataUtils.getMonsterAttack(this, attackId);
@@ -91,6 +95,7 @@ export class MonsterDetailsScene extends BaseScene {
 
     #goBackToPreviousScene() {
         this._contorls.lockInput = true;
-        this.scene.start(SCENE_KEYS.MONSTER_PARTY_SCENE);
+        this.scene.stop(SCENE_KEYS.MONSTER_DETAILS_SCENE);
+        this.scene.resume(SCENE_KEYS.MONSTER_PARTY_SCENE);
     }
 }

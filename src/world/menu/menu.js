@@ -21,7 +21,7 @@ export const MENU_OPTIONS = Object.freeze({
    OPTIONS: 'OPTIONS',
    EXIT:'EXIT',
    MONSTERDEX: 'MONSTERDEX', //will be removed
-   MONSTER: 'MONSTER', //will be removed to have HELP to guide
+   Character: 'Character', //will be removed to have HELP to guide
 });
 
 
@@ -71,7 +71,7 @@ export class Menu{
        this.#scene = scene;
        this.#padding = 4;
        this.#width = 300;
-       this.#availableMenuOptions = [MENU_OPTIONS.SAVE,MENU_OPTIONS.EXIT];
+       this.#availableMenuOptions = [MENU_OPTIONS.Character, MENU_OPTIONS.SAVE,MENU_OPTIONS.EXIT];
        this.#menuOptionsTextGameObjects = [];
        this.#selectedMenuOptionIndex = 0;
 

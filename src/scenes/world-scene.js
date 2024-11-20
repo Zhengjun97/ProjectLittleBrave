@@ -187,6 +187,7 @@ export class WorldScene extends BaseScene {
         //create Menu
         this.#menu = new Menu(this);
 
+
         this.cameras.main.fadeIn(1000, 0, 0, 0,(camera,progress) =>{
             if(progress === 1){
                 //if the player was knocked out, we want to lock nput, heal player, and then have npc show message
@@ -254,7 +255,17 @@ export class WorldScene extends BaseScene {
           this.#menu.hide();
           dataManager.saveData();
           this.#dialogUi.showDialogModal(['Game progress has been saved']);
-        } else if (this.#menu.selectedMenuOption === 'EXIT') {
+        } 
+        
+        if (this.#menu.selectedMenuOption === 'Character') {
+            const sceneDataToPass = {
+                previousSceneName:SCENE_KEYS.WORLD_SCENE
+            };
+            this.scene.launch(SCENE_KEYS.MONSTER_PARTY_SCENE, sceneDataToPass);
+            this.scene.pause();
+        }
+
+        if (this.#menu.selectedMenuOption === 'EXIT') {
           this.#menu.hide();
         }
 
@@ -443,4 +454,6 @@ export class WorldScene extends BaseScene {
         })
         dataManager.store.set(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY,monsters);
     }
+
+
 }
