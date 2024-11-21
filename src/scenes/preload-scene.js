@@ -47,6 +47,9 @@ export class PreloadScene extends BaseScene {
         //monster assets
         this.load.image(MONSTER_ASSET_KEYS.CARNODUSK, `${mosterTamerAssetPath}/monsters/carnodusk.png`);
         this.load.image(MONSTER_ASSET_KEYS.IGUANIGNITE, `${mosterTamerAssetPath}/monsters/iguanignite.png`);
+        this.load.image(MONSTER_ASSET_KEYS.AQUAVALOR, `${mosterTamerAssetPath}/monsters/aquavalor.png`);
+        this.load.image(MONSTER_ASSET_KEYS.FROSTSABER, `${mosterTamerAssetPath}/monsters/frostsaber.png`);
+        this.load.image(MONSTER_ASSET_KEYS.IGNIVOLT, `${mosterTamerAssetPath}/monsters/Ignivolt.png`);
 
         //ui assets
         this.load.image(UI_ASSET_KEYS.CURSOR, `${mosterTamerAssetPath}/ui/cursor_white.png`);
@@ -81,6 +84,7 @@ export class PreloadScene extends BaseScene {
             frameWidth: 48,
             frameHeight: 48,
         });
+        
 
         //load world assets
         this.load.image(WORLD_ASSET_KEYS.WORLD_BACKGROUND, `${mosterTamerAssetPath}/map/level_background.png`);
@@ -88,6 +92,10 @@ export class PreloadScene extends BaseScene {
         this.load.image(WORLD_ASSET_KEYS.WORLD_COLLISION, `${mosterTamerAssetPath}/map/collision.png`);
         this.load.image(WORLD_ASSET_KEYS.WORLD_FOREGROUND, `${mosterTamerAssetPath}/map/level_foreground.png`);
         this.load.image(WORLD_ASSET_KEYS.WORLD_ENCOUNTER_ZONE, `${mosterTamerAssetPath}/map/encounter.png`);
+        this.load.spritesheet(WORLD_ASSET_KEYS.BEACH, `${axulArtPath}/beach/AxulArtīs_Basic-Top-down-interior_By_AxulArt_scaled_4x_pngcrushed.png`, {
+            frameWidth: 64,
+            frameHeight: 64,
+        });
 
         //load character images
         this.load.spritesheet(CHARACTER_ASSET_KEYS.PLAYER, `${axulArtPath}/character/custom.png`, {
@@ -134,7 +142,7 @@ export class PreloadScene extends BaseScene {
 
         setGlobalSoundSettings(this);
 
-        this.scene.start(SCENE_KEYS.INVENTORY_SCENE);
+        this.scene.start(SCENE_KEYS.WORLD_SCENE);
     }
 
     #createAnimation() {

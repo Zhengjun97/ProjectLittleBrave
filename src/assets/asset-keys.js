@@ -5,6 +5,9 @@ export const BATTLE_BACKGROUND_ASSET_KEYS = Object.freeze({
 export const MONSTER_ASSET_KEYS = Object.freeze({
     IGUANIGNITE: 'PROGRAMMER',
     CARNODUSK: 'KING OF BUG',
+    IGNIVOLT:'IGNIVOLT',
+    AQUAVALOR: 'AQUAVALOR',
+    FROSTSABER:'FROSTSABER',
 });
 
 export const BATTLE_ASSET_KEYS = Object.freeze({
@@ -48,6 +51,7 @@ export const WORLD_ASSET_KEYS = Object.freeze({
     WORLD_COLLISION: 'WORLD_COLLISION',
     WORLD_FOREGROUND: 'WORLD_FOREGROUND',
     WORLD_ENCOUNTER_ZONE: 'WORLD_ENCOUNTER_ZONE',
+    BEACH:'BEACH',
 });
 
 export const CHARACTER_ASSET_KEYS = Object.freeze({
