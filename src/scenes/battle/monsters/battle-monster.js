@@ -43,7 +43,7 @@ export class BattleMonster {
       position.y,
       this._monsterDetails.assetKey,
       this._monsterDetails.assetFrame || 0
-    ).setFlipX(true).setScale(0.5).setAlpha(0);
+    ).setFlipX(false).setScale(1).setAlpha(0);
 
     this.#createHealthBarComponents(config.scaleHealthBarBackgroundImageByY);
     this._healthBar.setMeterPercentageAnimated(this._currentHealth / this._maxHealth, {

@@ -41,6 +41,10 @@ const TILED_NPC_PROPERTY = Object.freeze({
     FRAME: 'frame',
 });
 
+const TILED_ENCOUNTER_PROPERTY = Object.freeze({
+    AREA: 'area',
+});
+
 /**
  * @typedef WorldSceneData
  * @type {object}
@@ -362,14 +366,21 @@ export class WorldScene extends BaseScene {
 
         console.log(`[${WorldScene.name}:handlePlayerMovementUpdate]  player is in an encounter zone`);
         playSoundFx(this,AUDIO_ASSET_KEYS.GRASS);
-        this.#monsterEncountered = Math.random() < 0.2;
+        this.#monsterEncountered = Math.random() < 0.9;
         if (this.#monsterEncountered) {
-            console.log(`[${WorldScene.name}:handlePlayerMovementUpdate]  player encountered a monster`);
+            const encounterAreaId = /** @type {TiledObjectProperty[]} */ (this.#encounterLayer.layer.properties).find(
+                (property) => property.name === TILED_ENCOUNTER_PROPERTY.AREA
+              ).value;
+              const possibleMonsterIds = DataUtils.getEncounterAreaDetails(this, encounterAreaId);
+              const randomMonsterIndex = Phaser.Math.Between(0,possibleMonsterIds.length - 1);
+              const randomMonsterId = possibleMonsterIds[randomMonsterIndex];
+
+            console.log(`[${WorldScene.name}:handlePlayerMovementUpdate]  player encountered a monster in area ${encounterAreaId} and monster id has been picked randomly ${randomMonsterId}`);
             this.cameras.main.fadeOut(2000);
             this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
                 /**@type {(import("./battle-scene.js").BattleSceneData)}*/
                 const dataToPass = {
-                    enemyMonsters: [DataUtils.getMonsterById(this,2)],
+                    enemyMonsters: [DataUtils.getMonsterById(this,randomMonsterId)],
                     playerMonsters: dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY),
                 }
                 this.scene.start(SCENE_KEYS.BATTLE_SCENE,dataToPass);

@@ -51,3 +51,8 @@ import { ATTACK_KEYS } from "../scenes/battle/attacks/attack-keys.js";
  * @property {boolean} yoyo
  * @property {string} assetKey
  */
+
+/**
+ * @typedef EncounterData
+ * @type {Object.<string, number[]>}
+ */
