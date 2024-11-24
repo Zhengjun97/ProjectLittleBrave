@@ -266,7 +266,15 @@ export class WorldScene extends BaseScene {
                 previousSceneName:SCENE_KEYS.WORLD_SCENE
             };
             this.scene.launch(SCENE_KEYS.MONSTER_PARTY_SCENE, sceneDataToPass);
-            this.scene.pause();
+            this.scene.pause(SCENE_KEYS.WORLD_SCENE);
+        }
+
+        if (this.#menu.selectedMenuOption === 'BAG') {
+            const sceneDataToPass = {
+                previousSceneName:SCENE_KEYS.WORLD_SCENE
+            };
+            this.scene.launch(SCENE_KEYS.INVENTORY_SCENE, sceneDataToPass);
+            this.scene.pause(SCENE_KEYS.WORLD_SCENE);
         }
 
         if (this.#menu.selectedMenuOption === 'EXIT') {

@@ -30,6 +30,8 @@ export class BaseScene extends Phaser.Scene {
         this._contorls = new Controls(this);
         this.events.on(Phaser.Scenes.Events.RESUME, this.handleSceneResume, this);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneCleanUp, this);
+
+        this.scene.bringToTop();
     }
 
     update(time){
