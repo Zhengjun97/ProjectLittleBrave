@@ -65,6 +65,7 @@ export class PreloadScene extends BaseScene {
         //load json data
         this.load.json(DATA_ASSET_KEYS.ATTACKS, 'assets/data/attacks.json');
         this.load.json(DATA_ASSET_KEYS.ANIMATIONS, 'assets/data/animations.json');
+        this.load.json(DATA_ASSET_KEYS.ITEMS, 'assets/data/items.json');
         this.load.json(DATA_ASSET_KEYS.MONSTERS, 'assets/data/monsters.json');
         this.load.json(DATA_ASSET_KEYS.ENCOUNTERS, 'assets/data/encounters.json');
 
@@ -143,7 +144,7 @@ export class PreloadScene extends BaseScene {
 
         setGlobalSoundSettings(this);
 
-        this.scene.start(SCENE_KEYS.WORLD_SCENE);
+        this.scene.start(SCENE_KEYS.TITLE_SCENE);
     }
 
     #createAnimation() {
