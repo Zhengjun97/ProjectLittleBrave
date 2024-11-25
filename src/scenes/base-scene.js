@@ -38,6 +38,12 @@ export class BaseScene extends Phaser.Scene {
 
     }
 
+    /**
+     * 
+     * @param {Phaser.Scenes.Systems} sys 
+     * @param {any | undefined} data 
+     * @returns {void}
+     */
     handleSceneResume(sys, data) {
         this._contorls.lockInput = false;
         if (data) {

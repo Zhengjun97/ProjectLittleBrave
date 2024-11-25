@@ -48,6 +48,8 @@ export class MonsterPartyScene extends BaseScene {
     #monster;
     /**@type {MonsterPartySceneData} */
     #sceneData;
+    /**@type {boolean} */
+    #waitingForInput;
 
 
 
@@ -70,6 +72,7 @@ export class MonsterPartyScene extends BaseScene {
         this.#healthBarsTextGameObjects = [];
         this.#selectedPartyMonsterIndex = 0;
         this.#monster = dataManager.store.get(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY);
+        this.#waitingForInput = false;
     }
 
     create() {
@@ -104,6 +107,10 @@ export class MonsterPartyScene extends BaseScene {
 
     }
 
+    /**
+     * 
+     * @returns {void}
+     */
     update() {
         super.update();
 
@@ -112,13 +119,24 @@ export class MonsterPartyScene extends BaseScene {
         }
 
         if (this._contorls.wasBackKeyPressed()) {
-            this.#goBackToPreviousScene();
+            if (this.#waitingForInput) {
+                this.#updateInfoContainerText();
+                this.#waitingForInput = false;
+                return;
+            }
+
+            this.#goBackToPreviousScene(false);
             return;
         }
         const wasSpaceKeyPressed = this._contorls.wasSpaceKeyPressed();
         if (wasSpaceKeyPressed) {
+            if (this.#waitingForInput) {
+                this.#updateInfoContainerText();
+                this.#waitingForInput = false;
+                return;
+            }
             if (this.#selectedPartyMonsterIndex === -1) {
-                this.#goBackToPreviousScene();
+                this.#goBackToPreviousScene(false);
                 return;
             }
             // handle input based on what player intention was
@@ -135,6 +153,11 @@ export class MonsterPartyScene extends BaseScene {
             this.scene.pause(SCENE_KEYS.MONSTER_PARTY_SCENE);
             return;
         }
+
+        if (this.#waitingForInput) {
+            return;
+        }
+
         const selectedDirection = this._contorls.getDirectionKeyJustPressed();
         if (selectedDirection !== DIRECTION.NONE) {
             this.#movePlayerInputCursor(selectedDirection);
@@ -189,10 +212,14 @@ export class MonsterPartyScene extends BaseScene {
         return container;
     }
 
-    #goBackToPreviousScene() {
+    /**
+     * @param {boolean} itemUsed 
+     * @returns {void}
+     */
+    #goBackToPreviousScene(itemUsed) {
         this._contorls.lockInput = true;
         this.scene.stop(SCENE_KEYS.MONSTER_PARTY_SCENE);
-        this.scene.resume(this.#sceneData.previousSceneName);
+        this.scene.resume(this.#sceneData.previousSceneName, {itemUsed});
     }
 
     /**
@@ -261,6 +288,19 @@ export class MonsterPartyScene extends BaseScene {
      */
     #handleHealItemUsed(amount) {
 
+        //validate that the character is not dead
+        if (this.#monster[this.#selectedPartyMonsterIndex].currentHp === 0) {
+            this.#infoTextGameObject.setText('Cannot heal dead character');
+            this.#waitingForInput = true;
+            return;
+        }
+        //validate that the character is not already fully healed
+        if (this.#monster[this.#selectedPartyMonsterIndex].currentHp === this.#monster[this.#selectedPartyMonsterIndex].maxHp) {
+            this.#infoTextGameObject.setText('Character is already fully healed');
+            this.#waitingForInput = true;
+            return;
+        }
+        //otherwise heal the character by the amount
         this._contorls.lockInput = true;
         this.#monster[this.#selectedPartyMonsterIndex].currentHp += amount;
         if (this.#monster[this.#selectedPartyMonsterIndex].currentHp > this.#monster[this.#selectedPartyMonsterIndex].maxHp) {
@@ -269,14 +309,14 @@ export class MonsterPartyScene extends BaseScene {
 
         this.#infoTextGameObject.setText(`Healed by ${amount} HP`);
         this.#healthBars[this.#selectedPartyMonsterIndex].setMeterPercentageAnimated(
-            this.#monster[this.#selectedPartyMonsterIndex].currentHp / this.#monster[this.#selectedPartyMonsterIndex].maxHp, 
+            this.#monster[this.#selectedPartyMonsterIndex].currentHp / this.#monster[this.#selectedPartyMonsterIndex].maxHp,
             {
                 callback: () => {
                     this.#healthBarsTextGameObjects[this.#selectedPartyMonsterIndex].setText(`${this.#monster[this.#selectedPartyMonsterIndex].currentHp} / ${this.#monster[this.#selectedPartyMonsterIndex].maxHp}`);
                     dataManager.store.set(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY, this.#monster);
-                    this.time.delayedCall(300, ()=>{
-                        this.#goBackToPreviousScene();
-                    });     
+                    this.time.delayedCall(300, () => {
+                        this.#goBackToPreviousScene(true);
+                    });
                 }
             }
         );
