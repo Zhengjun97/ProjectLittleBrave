@@ -2,6 +2,7 @@ import { BATTLE_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_P
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
 import { DIRECTION } from "../common/direction.js";
 import Phaser from "../lib/phaser.js";
+import { ITEM_EFFECT } from "../types/typedef.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { exhaustiveGuard } from "../utils/guard.js";
 import { BaseScene } from "./base-scene.js";
@@ -28,6 +29,7 @@ const MONSTER_PARTY_POSTITION = Object.freeze({
  * @typedef MonsterPartySceneData
  * @type {object}
  * @property {string} previousSceneName
+ * @property {import("../types/typedef.js").Item} [itemSelected]
  */
 export class MonsterPartyScene extends BaseScene {
     /**@type {Phaser.GameObjects.Image[]} */
@@ -74,7 +76,7 @@ export class MonsterPartyScene extends BaseScene {
         super.create();
 
         //create background
-        this.add.rectangle(0,0, this.scale.width, this.scale.height, 0x000000, 1).setOrigin(0);
+        this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x000000, 1).setOrigin(0);
         this.add.tileSprite(0, 0, this.scale.width, this.scale.height, MONSTER_PARTY_ASSET_KEYS.PARTY_BACKGROUND, 0).setOrigin(0).setAlpha(0.7);
         //create button
         const buttonContainer = this.add.container(883, 519, []);
@@ -117,6 +119,11 @@ export class MonsterPartyScene extends BaseScene {
         if (wasSpaceKeyPressed) {
             if (this.#selectedPartyMonsterIndex === -1) {
                 this.#goBackToPreviousScene();
+                return;
+            }
+            // handle input based on what player intention was
+            if (this.#sceneData.previousSceneName === SCENE_KEYS.INVENTORY_SCENE && this.#sceneData.itemSelected) {
+                this.#handleItemUsed();
                 return;
             }
 
@@ -210,7 +217,7 @@ export class MonsterPartyScene extends BaseScene {
                     break;
                 }
                 this.#selectedPartyMonsterIndex += 1;
-                if (this.#selectedPartyMonsterIndex > this.#monster.length -1) {
+                if (this.#selectedPartyMonsterIndex > this.#monster.length - 1) {
                     this.#selectedPartyMonsterIndex = -1;
                 }
                 if (this.#selectedPartyMonsterIndex === -1) {
@@ -227,12 +234,52 @@ export class MonsterPartyScene extends BaseScene {
                 exhaustiveGuard(direction);
         }
 
-        this.#monsterPartyBackgrounds.forEach((obj, index)=>{
+        this.#monsterPartyBackgrounds.forEach((obj, index) => {
             if (index === this.#selectedPartyMonsterIndex) {
                 return;
             }
             obj.setAlpha(0.7);
         })
+    }
+
+    /**
+     * @returns {void}
+     */
+    #handleItemUsed() {
+        switch (this.#sceneData.itemSelected.effect) {
+            case ITEM_EFFECT.HEAL_30:
+                this.#handleHealItemUsed(30);
+                break;
+            default:
+                exhaustiveGuard(this.#sceneData.itemSelected.effect);
+        }
+    }
+
+    /**
+     * @param {number} amount 
+     * @returns {void}
+     */
+    #handleHealItemUsed(amount) {
+
+        this._contorls.lockInput = true;
+        this.#monster[this.#selectedPartyMonsterIndex].currentHp += amount;
+        if (this.#monster[this.#selectedPartyMonsterIndex].currentHp > this.#monster[this.#selectedPartyMonsterIndex].maxHp) {
+            this.#monster[this.#selectedPartyMonsterIndex].currentHp = this.#monster[this.#selectedPartyMonsterIndex].maxHp;
+        }
+
+        this.#infoTextGameObject.setText(`Healed by ${amount} HP`);
+        this.#healthBars[this.#selectedPartyMonsterIndex].setMeterPercentageAnimated(
+            this.#monster[this.#selectedPartyMonsterIndex].currentHp / this.#monster[this.#selectedPartyMonsterIndex].maxHp, 
+            {
+                callback: () => {
+                    this.#healthBarsTextGameObjects[this.#selectedPartyMonsterIndex].setText(`${this.#monster[this.#selectedPartyMonsterIndex].currentHp} / ${this.#monster[this.#selectedPartyMonsterIndex].maxHp}`);
+                    dataManager.store.set(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY, this.#monster);
+                    this.time.delayedCall(300, ()=>{
+                        this.#goBackToPreviousScene();
+                    });     
+                }
+            }
+        );
     }
 
 

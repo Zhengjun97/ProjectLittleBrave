@@ -144,7 +144,7 @@ export class PreloadScene extends BaseScene {
 
         setGlobalSoundSettings(this);
 
-        this.scene.start(SCENE_KEYS.TITLE_SCENE);
+        this.scene.start(SCENE_KEYS.INVENTORY_SCENE);
     }
 
     #createAnimation() {

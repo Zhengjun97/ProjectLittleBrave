@@ -166,6 +166,7 @@ export class InventoryScene extends BaseScene {
             this._contorls.lockInput = true;
             const sceneDataToPass = {
                 previousSceneName: SCENE_KEYS.INVENTORY_SCENE,
+                itemSelected: this.#inventory[this.#selectedInventroyOptionIndex].item,
             };
             this.scene.launch(SCENE_KEYS.MONSTER_PARTY_SCENE, sceneDataToPass);
             this.scene.pause(SCENE_KEYS.INVENTORY_SCENE);
