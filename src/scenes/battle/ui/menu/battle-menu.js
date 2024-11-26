@@ -7,6 +7,7 @@ import { BATTLE_UI_TEXT_STYLE } from "./battle-menu-config.js";
 import { BattleMonster } from "../../monsters/battle-monster.js";
 import { animateText } from "../../../../utils/text-utils.js";
 import { dataManager } from "../../../../utils/data-manager.js";
+import { SCENE_KEYS } from "../../../scene-keys.js";
 
 const BATTLE_MENU_CURSOR_POS = Object.freeze({
     x: 42,
@@ -60,6 +61,8 @@ export class BattleMenu {
     /** @type {boolean} */
     #skipAnimations;
     /** @type {boolean} */
+    #usedItem;
+    /** @type {boolean} */
     #queueMessageAnimationPlaying;
     /** @type {boolean} */
     #runAttempt;
@@ -80,11 +83,17 @@ export class BattleMenu {
         this.#selectedAttackIndex = undefined;
         this.#skipAnimations = skipBattleAnimations;
         this.#queueMessageAnimationPlaying = false;
+        this.#usedItem = false;
         this.#runAttempt = false;
         this.#mainInfoPane();
         this.#createMainBattleMenu();
         this.#createMsAttackSubMenu();
         this.#createPlayerInputCursor();
+
+        this.#scene.events.on(Phaser.Scenes.Events.RESUME, this.#handleSceneResume, this);
+        this.#scene.events.once(Phaser.Scenes.Events.SHUTDOWN, ()=>{
+            this.#scene.events.off(Phaser.Scenes.Events.RESUME, this.#handleSceneResume, this);
+        }, this);
     }
 
     /** @type {number | undefined} */
@@ -93,6 +102,11 @@ export class BattleMenu {
             return this.#selectedAttackIndex;
         }
         return undefined;
+    }
+
+    /** @type {boolean} */
+    get wasItemUsed() {
+        return this.#usedItem;
     }
 
     /** @type {boolean} */
@@ -110,6 +124,7 @@ export class BattleMenu {
         this.#selectBattleMenuOpt = BATTLE_MENU_OPTION.FIGHT;
         this.#mainBattleMenuCursorPhaserImgGameObj.setPosition(BATTLE_MENU_CURSOR_POS.x, BATTLE_MENU_CURSOR_POS.y);
         this.#selectedAttackIndex = undefined;
+        this.#usedItem = false;
         this.#runAttempt = false;
     }
 
@@ -509,21 +524,19 @@ export class BattleMenu {
         }
 
         if (this.#selectBattleMenuOpt === BATTLE_MENU_OPTION.ITEM) {
-            /* 
-                for the time being, we will display text about the player having no items
-                and allow the player to navigate back to the main menu
-            */
             this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_ITEM;
-            this.updateInfoPaneMessageAndWaitForInput(['Your bag is empty...'], () => {
-                this.#swtichToMainBattleMenu();
-            },
-            );
+            /** @type {import("../../../inventory-scene.js").InventorySceneData} */
+            const sceneDataToPass = {
+                previousSceneName: SCENE_KEYS.BATTLE_SCENE,
+            };
+            this.#scene.scene.launch(SCENE_KEYS.INVENTORY_SCENE, sceneDataToPass);
+            this.#scene.scene.pause(SCENE_KEYS.BATTLE_SCENE);
             return;
         }
 
         if (this.#selectBattleMenuOpt === BATTLE_MENU_OPTION.RUN) {
             this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_RUN;
-            this.#runAttempt = true;      
+            this.#runAttempt = true;
             return;
         }
 
@@ -570,4 +583,23 @@ export class BattleMenu {
         });
         this.#userInputCursorPhaserTween.pause();
     }
+
+    /**
+     * 
+     * @param {Phaser.Scenes.Systems} sys 
+     * @param {import("../../../inventory-scene.js").InventorySceneItemUsedData} data 
+     * @returns {void}
+     */
+    #handleSceneResume(sys, data) {
+        console.log(`[${BattleMenu.name}:handleSceneResume] scene has been resumed, data provied: ${JSON.stringify(data)}`);
+
+        if(!data || !data.itemUsed) {
+            this.#swtichToMainBattleMenu();
+            return;
+        }
+
+        this.#usedItem = true;
+        this.updateInfoPaneMessageAndWaitForInput([`You used the following item: ${data.item.name}`]);
+    }
+
 }
