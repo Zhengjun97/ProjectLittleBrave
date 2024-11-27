@@ -6,6 +6,7 @@ import { playBackgroundMusic, playSoundFx } from "../utils/audio-utils.js";
 import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { DataUtils } from "../utils/data-utils.js";
+import { calculatedExpGainedFromMonster } from "../utils/leveling-utils.js";
 import { createSceneTransition } from "../utils/scene-transition.js";
 import { StateMachine } from "../utils/state-machine.js";
 import { BaseScene } from "./base-scene.js";
@@ -26,6 +27,7 @@ const BATTLE_STATES = Object.freeze({
   POST_ATTACK_CHECK: 'POST_ATTACK_CHECK',
   FINISHED: 'FINISHED',
   RUN_ATTEMPT: 'RUN_ATTEMPT',
+  GAIN_EXPERIENCE: 'GAIN_EXPERIENCE',
 });
 
 /**
@@ -138,6 +140,7 @@ export class BattleScene extends BaseScene {
       wasSpaceKeyPressed &&
       (this.#battleStateMachine.currentStateName === BATTLE_STATES.PRE_BATTLE_INFO ||
         this.#battleStateMachine.currentStateName === BATTLE_STATES.POST_ATTACK_CHECK ||
+        this.#battleStateMachine.currentStateName === BATTLE_STATES.GAIN_EXPERIENCE ||
         this.#battleStateMachine.currentStateName === BATTLE_STATES.RUN_ATTEMPT)
     ) {
       this.#battleMenu.handlePlayerInput('OK');
@@ -267,9 +270,9 @@ export class BattleScene extends BaseScene {
     if (this.#activeEnemyMonster.isFainted) {
       this.#activeEnemyMonster.playDeathAnimation(() => {
         this.#battleMenu.updateInfoPaneMessageAndWaitForInput(
-          [`${this.#activeEnemyMonster.name} dead`, 'You have gained some experience'],
+          [`${this.#activeEnemyMonster.name} dead.`],
           () => {
-            this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
+            this.#battleStateMachine.setState(BATTLE_STATES.GAIN_EXPERIENCE);
           },
         );
       });
@@ -456,6 +459,57 @@ export class BattleScene extends BaseScene {
             this.#battleStateMachine.setState(BATTLE_STATES.ENEMY_INPUT);
           });
         });
+      },
+    });
+
+    this.#battleStateMachine.addState({
+      name: BATTLE_STATES.GAIN_EXPERIENCE,
+      onEnter: () => {
+        //update exp bar based on exp gained, then transition to finished state
+        const gainedExpForActiveMonster = calculatedExpGainedFromMonster(
+          this.#activeEnemyMonster.baseExpValue,
+          this.#activeEnemyMonster.level,
+          true
+        );
+        
+        const gainedExpForInActiveMonster = calculatedExpGainedFromMonster(
+          this.#activeEnemyMonster.baseExpValue,
+          this.#activeEnemyMonster.level,
+          false
+        );
+
+        /** @type {string[]} */
+        const messages = [];
+        this.#sceneData.playerMonsters.forEach((monster, index) =>{
+          /** @type {import("../utils/leveling-utils.js").statChanges} */
+          let statChanges;
+          if (index === this.#activePlayerAttackIndex) {
+            statChanges = this.#activePlayerMonster.updateMonsterExp(gainedExpForActiveMonster);
+            messages.push(`${this.#sceneData.playerMonsters[index].name} gained ${gainedExpForActiveMonster} exp.`);
+          } else {
+            //todo
+            messages.push(`${this.#sceneData.playerMonsters[index].name} gained ${gainedExpForInActiveMonster} exp.`);
+          }
+          if (statChanges.level !== 0) {
+            messages.push(`${this.#sceneData.playerMonsters[index].name} level increase to  ${this.#sceneData.playerMonsters[index].currentLevel} !`);
+            messages.push(`${this.#sceneData.playerMonsters[index].name} attack increase by  ${statChanges.attack} and health increase by ${statChanges.health} !`);
+            
+          }
+        });
+
+        this._contorls.lockInput = true;
+        this.#activePlayerMonster.updateMonsterExpBar(() => {
+          this.#battleMenu.updateInfoPaneMessageAndWaitForInput(messages, ()=> {
+            this.time.delayedCall(200, ()=> {
+              //update the data manager with lates monster data
+              dataManager.store.set(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY, this.#sceneData.playerMonsters);
+              this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
+            });
+          });
+          this._contorls.lockInput = false;
+        });
+
+
       },
     });
 

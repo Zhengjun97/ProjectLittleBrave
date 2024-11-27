@@ -3,6 +3,7 @@ import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
 import { ExpBar } from "../common/exp-bar.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { DataUtils } from "../utils/data-utils.js";
+import { calculateExpBarCurrentValue, expNeedForNextLevel } from "../utils/leveling-utils.js";
 import { BaseScene } from "./base-scene.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 
@@ -83,9 +84,9 @@ export class MonsterDetailsScene extends BaseScene {
         //add exp details
         //todo: update with real exp
         this.add.text(20,340, 'Current Exp.', MONSTER_EXP_STYLE).setOrigin(0,0);
-        this.add.text(516,340, '5', MONSTER_EXP_STYLE).setOrigin(1,0);
+        this.add.text(516,340, `${this.#monsterDetails.currentExp}`, MONSTER_EXP_STYLE).setOrigin(1,0);
         this.add.text(20,365, 'Exp. to next level', MONSTER_EXP_STYLE).setOrigin(0,0);
-        this.add.text(516,365, '5', MONSTER_EXP_STYLE).setOrigin(1,0);
+        this.add.text(516,365, `${expNeedForNextLevel(this.#monsterDetails.currentLevel, this.#monsterDetails.currentExp)}`, MONSTER_EXP_STYLE).setOrigin(1,0);
         this.add.text(108, 392, 'EXP', {
             fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME,
             color: '#6505FF',
@@ -93,7 +94,9 @@ export class MonsterDetailsScene extends BaseScene {
             fontStyle: 'italic',
         });
         const expBar = new ExpBar(this, 70, 200);
-        expBar.setMeterPercentageAnimated(0.5, {skipBattleAnimations: true});
+        expBar.setMeterPercentageAnimated(
+            calculateExpBarCurrentValue(this.#monsterDetails.currentLevel, this.#monsterDetails.currentExp), 
+            {skipBattleAnimations: true});
 
 
 

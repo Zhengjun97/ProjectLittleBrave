@@ -24,6 +24,8 @@ export class BattleMonster {
   _phaserHealthBarGameContainer;
   /** @protected @type {boolean} */
   _skipBattleAnimations;
+  /** @protected @type {Phaser.GameObjects.Text} */
+  _monsterHealthBarLevelText;
 
 
   /**
@@ -81,7 +83,7 @@ export class BattleMonster {
 
   /**@type {number} */
   get baseAttack() {
-    return this._monsterDetails.baseAttack;
+    return this._monsterDetails.currentAttack;
   }
 
 
@@ -155,6 +157,14 @@ export class BattleMonster {
     throw new Error('playDeathAnimation is not implemented.');
   }
 
+  /**
+   * @protected
+   * @returns {void}
+   */
+  _setMonsterLevelText() {
+    this._monsterHealthBarLevelText.setText(`L${this.level}`);
+  }
+
   #createHealthBarComponents(scaleHealthBarBackgroundImageByY = 1) {
     this._healthBar = new HealthBar(this._scene, 34, 34);
 
@@ -163,8 +173,9 @@ export class BattleMonster {
 
     const healthBarBgImage = this._scene.add.image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0).setScale(1, scaleHealthBarBackgroundImageByY);
 
-    const monsterHealthBarLevelText = this._scene.add.text(monsterNameGameText.width + 35, 23, `L${this.level}`, { fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#ED474B', fontSize: '28px' });
+    this._monsterHealthBarLevelText = this._scene.add.text(monsterNameGameText.width + 35, 23, '', { fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#ED474B', fontSize: '28px' });
 
+    this._setMonsterLevelText();
 
     const monsterHpText = this._scene.add.text(30, 55, 'HP', { fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#FF6505', fontSize: '24px', fontStyle: 'italic' });
 
@@ -173,7 +184,7 @@ export class BattleMonster {
       healthBarBgImage
       , monsterNameGameText,
       this._healthBar.container,
-      monsterHealthBarLevelText,
+      this._monsterHealthBarLevelText,
       monsterHpText
     ]).setAlpha(0);
 

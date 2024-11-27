@@ -272,7 +272,13 @@ export class BattleMenu {
 
     //render out the main info and sub info panes
     #createMainBattleMenu() {
-        this.#battleTextGameObjLine1 = this.#scene.add.text(20, 468, 'what should', BATTLE_UI_TEXT_STYLE);
+        this.#battleTextGameObjLine1 = this.#scene.add.text(20, 468, 'what should', 
+            {...BATTLE_UI_TEXT_STYLE, 
+            ...{
+                wordWrap: {
+                    width: this.#scene.scale.width - 20,
+                },
+            }});
         this.#battleTextGameObjLine2 = this.#scene.add.text(20, 512, `I do next?`, BATTLE_UI_TEXT_STYLE);
 
         this.#mainBattleMenuCursorPhaserImgGameObj = this.#scene.add.image(BATTLE_MENU_CURSOR_POS.x, BATTLE_MENU_CURSOR_POS.y, UI_ASSET_KEYS.CURSOR, 0).setOrigin(0.5).setScale(2.5);

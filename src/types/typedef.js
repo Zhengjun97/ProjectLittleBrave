@@ -22,6 +22,9 @@ import { ATTACK_KEYS } from "../scenes/battle/attacks/attack-keys.js";
  * @property {number} currentHp
  * @property {number} baseAttack
  * @property {number[]} attackIds
+ * @property {number} currentAttack
+ * @property {number} baseExp
+ * @property {number} currentExp
  */
 
 /**

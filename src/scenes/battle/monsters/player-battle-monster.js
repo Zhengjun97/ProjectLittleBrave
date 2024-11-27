@@ -1,5 +1,6 @@
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../../../assets/font-keys.js";
 import { ExpBar } from "../../../common/exp-bar.js";
+import { calculateExpBarCurrentValue, handleMonsterGainingExp } from "../../../utils/leveling-utils.js";
 import { BattleMonster } from "./battle-monster.js";
 
 /**
@@ -160,7 +161,9 @@ export class PlayerBattleMonster extends BattleMonster {
      */
     #addExpBarComponents() {
         this.#expBar = new ExpBar(this._scene, 34, 54);
-        this.#expBar.setMeterPercentageAnimated(0.5, {skipBattleAnimations: true});
+        this.#expBar.setMeterPercentageAnimated(
+            calculateExpBarCurrentValue(this._monsterDetails.currentLevel, this._monsterDetails.currentExp), 
+            {skipBattleAnimations: true});
 
         const monsterExpText = this._scene.add.text(30, 100, 'EXP', {
             fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME,
@@ -169,6 +172,25 @@ export class PlayerBattleMonster extends BattleMonster {
             fontStyle: 'italic',
         });
         this._phaserHealthBarGameContainer.add([monsterExpText,this.#expBar.container]);
+    }
+
+    /**
+     * @param {number} gainedExp 
+     * @returns {import("../../../utils/leveling-utils.js").statChanges}
+     */
+    updateMonsterExp(gainedExp) {
+        return handleMonsterGainingExp(this._monsterDetails, gainedExp);
+    }
+
+    updateMonsterExpBar(callback) {
+        this.#expBar.setMeterPercentageAnimated(0.5, {
+            callback: () => {
+                this._setMonsterLevelText();
+                this._maxHealth = this._monsterDetails.maxHp;
+                this.updateMonsterHealth(this._currentHealth);
+                callback();
+            },
+        });
     }
 
 }
