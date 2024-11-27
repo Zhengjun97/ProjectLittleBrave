@@ -1,5 +1,6 @@
 import { MONSTER_PARTY_ASSET_KEYS } from "../assets/asset-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
+import { ExpBar } from "../common/exp-bar.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { DataUtils } from "../utils/data-utils.js";
 import { BaseScene } from "./base-scene.js";
@@ -11,6 +12,10 @@ const UI_TEXT_STYLE = Object.freeze({
 
 const MONSTER_MOVE_STYLE = Object.freeze({
     fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#000000', fontSize: '40px',
+});
+
+const MONSTER_EXP_STYLE = Object.freeze({
+    fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME, color: '#000000', fontSize: '22px',
 });
 
 export class MonsterDetailsScene extends BaseScene {
@@ -74,6 +79,25 @@ export class MonsterDetailsScene extends BaseScene {
         if (this.#monsterAttack[3] !== undefined) {
             this.add.text(560, 322, this.#monsterAttack[3].name, MONSTER_MOVE_STYLE);
         }
+
+        //add exp details
+        //todo: update with real exp
+        this.add.text(20,340, 'Current Exp.', MONSTER_EXP_STYLE).setOrigin(0,0);
+        this.add.text(516,340, '5', MONSTER_EXP_STYLE).setOrigin(1,0);
+        this.add.text(20,365, 'Exp. to next level', MONSTER_EXP_STYLE).setOrigin(0,0);
+        this.add.text(516,365, '5', MONSTER_EXP_STYLE).setOrigin(1,0);
+        this.add.text(108, 392, 'EXP', {
+            fontFamily: KENNEY_FUTURE_NARROW_FONT_NAME,
+            color: '#6505FF',
+            fontSize: '14px',
+            fontStyle: 'italic',
+        });
+        const expBar = new ExpBar(this, 70, 200);
+        expBar.setMeterPercentageAnimated(0.5, {skipBattleAnimations: true});
+
+
+
+        this.scene.bringToTop(SCENE_KEYS.MONSTER_DETAILS_SCENE);
     }
 
     update() {
