@@ -1,5 +1,5 @@
 
-import { ATTACK_ASSET_KEYS, AUDIO_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, INVENTORY_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_PARTY_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
+import { ATTACK_ASSET_KEYS, AUDIO_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, EXP_BAR_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, INVENTORY_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_PARTY_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
 import Phaser from "../lib/phaser.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
@@ -44,6 +44,12 @@ export class PreloadScene extends BaseScene {
         this.load.image(HEALTH_BAR_ASSET_KEYS.MIDDLE_SHADOW, `${kenneysAssetPath}/ui-space-expansion/barHorizontal_shadow_mid.png`);
         this.load.image(HEALTH_BAR_ASSET_KEYS.LEFT_CAP_SHADOW, `${kenneysAssetPath}/ui-space-expansion/barHorizontal_shadow_right.png`);
 
+        //exp bar assets
+        this.load.image(EXP_BAR_ASSET_KEYS.EXP_RIGHT_CAP, `${kenneysAssetPath}/ui-space-expansion/barHorizontal_blue_right.png`);
+        this.load.image(EXP_BAR_ASSET_KEYS.EXP_MIDDLE, `${kenneysAssetPath}/ui-space-expansion/barHorizontal_blue_mid.png`);
+        this.load.image(EXP_BAR_ASSET_KEYS.EXP_LEFT_CAP, `${kenneysAssetPath}/ui-space-expansion/barHorizontal_blue_left.png`);
+
+
         //monster assets
         this.load.image(MONSTER_ASSET_KEYS.CARNODUSK, `${mosterTamerAssetPath}/monsters/carnodusk.png`);
         this.load.image(MONSTER_ASSET_KEYS.IGUANIGNITE, `${mosterTamerAssetPath}/monsters/iguanignite.png`);
@@ -86,7 +92,7 @@ export class PreloadScene extends BaseScene {
             frameWidth: 48,
             frameHeight: 48,
         });
-        
+
 
         //load world assets
         this.load.image(WORLD_ASSET_KEYS.WORLD_BACKGROUND, `${mosterTamerAssetPath}/map/level_background.png`);

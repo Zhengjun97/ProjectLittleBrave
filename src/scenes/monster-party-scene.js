@@ -1,12 +1,12 @@
 import { BATTLE_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_PARTY_ASSET_KEYS, UI_ASSET_KEYS } from "../assets/asset-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
 import { DIRECTION } from "../common/direction.js";
+import { HealthBar } from "../common/health-bar.js";
 import Phaser from "../lib/phaser.js";
 import { ITEM_EFFECT } from "../types/typedef.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { exhaustiveGuard } from "../utils/guard.js";
 import { BaseScene } from "./base-scene.js";
-import { HealthBar } from "./battle/ui/menu/health-bar.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 
 const UI_TEXT_STYLE = Object.freeze({
