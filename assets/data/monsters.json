@@ -9,10 +9,10 @@
         "maxHp": 25,
         "attackIds": [2],
         "baseAttack": 5,
-        "currentAttack": 15,
+        "currentAttack": 25,
         "currentLevel": 5,
         "baseExp": 50,
-        "currentExp": 125
+        "currentExp": 200
       },
 
       {

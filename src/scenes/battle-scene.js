@@ -480,14 +480,17 @@ export class BattleScene extends BaseScene {
 
         /** @type {string[]} */
         const messages = [];
+        let didActiveMonsterLevelUp = false;
         this.#sceneData.playerMonsters.forEach((monster, index) =>{
           /** @type {import("../utils/leveling-utils.js").statChanges} */
           let statChanges;
           if (index === this.#activePlayerAttackIndex) {
             statChanges = this.#activePlayerMonster.updateMonsterExp(gainedExpForActiveMonster);
             messages.push(`${this.#sceneData.playerMonsters[index].name} gained ${gainedExpForActiveMonster} exp.`);
+            if (statChanges.level !== 0) {
+              didActiveMonsterLevelUp = true;
+            }
           } else {
-            //todo
             messages.push(`${this.#sceneData.playerMonsters[index].name} gained ${gainedExpForInActiveMonster} exp.`);
           }
           if (statChanges.level !== 0) {
@@ -507,7 +510,7 @@ export class BattleScene extends BaseScene {
             });
           });
           this._contorls.lockInput = false;
-        });
+        }, didActiveMonsterLevelUp);
 
 
       },
