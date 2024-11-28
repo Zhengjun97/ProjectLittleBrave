@@ -6,7 +6,7 @@ import { playBackgroundMusic, playSoundFx } from "../utils/audio-utils.js";
 import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { DataUtils } from "../utils/data-utils.js";
-import { calculatedExpGainedFromMonster } from "../utils/leveling-utils.js";
+import { calculatedExpGainedFromMonster, handleMonsterGainingExp } from "../utils/leveling-utils.js";
 import { createSceneTransition } from "../utils/scene-transition.js";
 import { StateMachine } from "../utils/state-machine.js";
 import { BaseScene } from "./base-scene.js";
@@ -482,21 +482,35 @@ export class BattleScene extends BaseScene {
         const messages = [];
         let didActiveMonsterLevelUp = false;
         this.#sceneData.playerMonsters.forEach((monster, index) =>{
+          if (this.#sceneData.playerMonsters[index].currentHp <= 0) {
+            return;
+          }
+
           /** @type {import("../utils/leveling-utils.js").statChanges} */
           let statChanges;
+        /** @type {string[]} */
+        const monsterMessages = [];
           if (index === this.#activePlayerAttackIndex) {
             statChanges = this.#activePlayerMonster.updateMonsterExp(gainedExpForActiveMonster);
-            messages.push(`${this.#sceneData.playerMonsters[index].name} gained ${gainedExpForActiveMonster} exp.`);
+            monsterMessages.push(`${this.#sceneData.playerMonsters[index].name} gained ${gainedExpForActiveMonster} exp.`);
             if (statChanges.level !== 0) {
               didActiveMonsterLevelUp = true;
             }
           } else {
-            messages.push(`${this.#sceneData.playerMonsters[index].name} gained ${gainedExpForInActiveMonster} exp.`);
+            statChanges = handleMonsterGainingExp(this.#sceneData.playerMonsters[index], gainedExpForInActiveMonster);
+            monsterMessages.push(`${this.#sceneData.playerMonsters[index].name} gained ${gainedExpForInActiveMonster} exp.`);
           }
           if (statChanges.level !== 0) {
-            messages.push(`${this.#sceneData.playerMonsters[index].name} level increase to  ${this.#sceneData.playerMonsters[index].currentLevel} !`);
-            messages.push(`${this.#sceneData.playerMonsters[index].name} attack increase by  ${statChanges.attack} and health increase by ${statChanges.health} !`);
-            
+            monsterMessages.push(
+              `${this.#sceneData.playerMonsters[index].name} level increase to  ${this.#sceneData.playerMonsters[index].currentLevel} !`,
+              `${this.#sceneData.playerMonsters[index].name} attack increase by  ${statChanges.attack} and health increase by ${statChanges.health} !`
+            );
+          }
+
+          if (index === this.#activePlayerAttackIndex) {
+            messages.unshift(...monsterMessages);
+          } else {
+            messages.push(...monsterMessages);
           }
         });
 
