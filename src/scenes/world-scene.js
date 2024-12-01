@@ -7,6 +7,7 @@ import { Controls } from "../utils/controls.js";
 import { DATA_MANAGER_STORE_KEYS, dataManager } from "../utils/data-manager.js";
 import { DataUtils } from "../utils/data-utils.js";
 import { getTargetPositionFromGameObjectPositionAndDirection } from "../utils/grid-utils.js";
+import { weightedRandom } from "../utils/random.js";
 import { CANNOT_READ_SIGN_TEXT, SAMPLE_TEXT } from "../utils/text-utils.js";
 import { NPC } from "../world/character/npc.js";
 import { Player } from "../world/character/player.js";
@@ -374,14 +375,14 @@ export class WorldScene extends BaseScene {
 
         console.log(`[${WorldScene.name}:handlePlayerMovementUpdate]  player is in an encounter zone`);
         playSoundFx(this,AUDIO_ASSET_KEYS.GRASS);
-        this.#monsterEncountered = Math.random() < 0.9;
+        this.#monsterEncountered = Math.random() < 0.2;
         if (this.#monsterEncountered) {
             const encounterAreaId = /** @type {TiledObjectProperty[]} */ (this.#encounterLayer.layer.properties).find(
                 (property) => property.name === TILED_ENCOUNTER_PROPERTY.AREA
               ).value;
-              const possibleMonsterIds = DataUtils.getEncounterAreaDetails(this, encounterAreaId);
-              const randomMonsterIndex = Phaser.Math.Between(0,possibleMonsterIds.length - 1);
-              const randomMonsterId = possibleMonsterIds[randomMonsterIndex];
+              const possibleMonsters = DataUtils.getEncounterAreaDetails(this, encounterAreaId);
+              const randomMonsterId = weightedRandom(possibleMonsters);
+              
 
             console.log(`[${WorldScene.name}:handlePlayerMovementUpdate]  player encountered a monster in area ${encounterAreaId} and monster id has been picked randomly ${randomMonsterId}`);
             this.cameras.main.fadeOut(2000);
