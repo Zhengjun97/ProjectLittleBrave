@@ -1,5 +1,5 @@
 
-import { ATTACK_ASSET_KEYS, AUDIO_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, EXP_BAR_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, INVENTORY_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_PARTY_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
+import { ATTACK_ASSET_KEYS, AUDIO_ASSET_KEYS, BATTLE_ASSET_KEYS, BATTLE_BACKGROUND_ASSET_KEYS, BUILDING_ASSET_KEYS, CHARACTER_ASSET_KEYS, DATA_ASSET_KEYS, EXP_BAR_ASSET_KEYS, HEALTH_BAR_ASSET_KEYS, INVENTORY_ASSET_KEYS, MONSTER_ASSET_KEYS, MONSTER_PARTY_ASSET_KEYS, TITLE_ASSET_KEYS, UI_ASSET_KEYS, WORLD_ASSET_KEYS } from "../assets/asset-keys.js";
 import Phaser from "../lib/phaser.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 import { KENNEY_FUTURE_NARROW_FONT_NAME } from "../assets/font-keys.js";
@@ -95,15 +95,24 @@ export class PreloadScene extends BaseScene {
 
 
         //load world assets
-        this.load.image(WORLD_ASSET_KEYS.WORLD_BACKGROUND, `${mosterTamerAssetPath}/map/level_background.png`);
-        this.load.tilemapTiledJSON(WORLD_ASSET_KEYS.WORLD_MAIN_LEVEL, `assets/data/level.json`);
+        this.load.image(WORLD_ASSET_KEYS.MAIN_1_BACKGROUND, `${mosterTamerAssetPath}/map/main_1_level_background.png`);
+        this.load.tilemapTiledJSON(WORLD_ASSET_KEYS.MAIN_1_LEVEL, `assets/data/main_1.json`);
         this.load.image(WORLD_ASSET_KEYS.WORLD_COLLISION, `${mosterTamerAssetPath}/map/collision.png`);
-        this.load.image(WORLD_ASSET_KEYS.WORLD_FOREGROUND, `${mosterTamerAssetPath}/map/level_foreground.png`);
+        this.load.image(WORLD_ASSET_KEYS.MAIN_1_FOREGROUND, `${mosterTamerAssetPath}/map/main_1_level_foreground.png`);
         this.load.image(WORLD_ASSET_KEYS.WORLD_ENCOUNTER_ZONE, `${mosterTamerAssetPath}/map/encounter.png`);
         this.load.spritesheet(WORLD_ASSET_KEYS.BEACH, `${axulArtPath}/beach/AxulArtīs_Basic-Top-down-interior_By_AxulArt_scaled_4x_pngcrushed.png`, {
             frameWidth: 64,
             frameHeight: 64,
         });
+
+        this.load.image(BUILDING_ASSET_KEYS.BUILDING_1_FOREGROUND, `${mosterTamerAssetPath}/map/buildings/building_1_level_foreground.png`);
+        this.load.image(BUILDING_ASSET_KEYS.BUILDING_1_BACKGROUND, `${mosterTamerAssetPath}/map/buildings/building_1_level_background.png`);
+        this.load.tilemapTiledJSON(BUILDING_ASSET_KEYS.BUILDING_1_LEVEL, `assets/data/building_1.json`);
+
+        this.load.image(BUILDING_ASSET_KEYS.BUILDING_2_FOREGROUND, `${mosterTamerAssetPath}/map/buildings/building_2_level_foreground.png`);
+        this.load.image(BUILDING_ASSET_KEYS.BUILDING_2_BACKGROUND, `${mosterTamerAssetPath}/map/buildings/building_2_level_background.png`);
+        this.load.tilemapTiledJSON(BUILDING_ASSET_KEYS.BUILDING_2_LEVEL, `assets/data/building_2.json`);
+
 
         //load character images
         this.load.spritesheet(CHARACTER_ASSET_KEYS.PLAYER, `${axulArtPath}/character/custom.png`, {

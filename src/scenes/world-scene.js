@@ -55,17 +55,19 @@ const TILED_ITEM_PROPERTY = Object.freeze({
 /**
  * @typedef WorldSceneData
  * @type {object}
- * @property {boolean} isPlayerKnockOut
+ * @property {boolean} [isPlayerKnockOut]
+ * @property {string} [area]
+ * @property {boolean} [isInterior]
  */
 
 export class WorldScene extends BaseScene {
     /**@type {Player} */
     #player;
-    /**@type {Phaser.Tilemaps.TilemapLayer} */
+    /**@type {Phaser.Tilemaps.TilemapLayer | undefined} */
     #encounterLayer;
     /**@type {boolean} */
     #monsterEncountered;
-    /**@type {Phaser.Tilemaps.ObjectLayer} */
+    /**@type {Phaser.Tilemaps.ObjectLayer | undefined} */
     #signLayer;
     /**@type {DialogUi} */
     #dialogUi;
@@ -94,16 +96,19 @@ export class WorldScene extends BaseScene {
         super.init();
         this.#sceneData = data;
 
-        if(Object.keys(data).length === 0){
-            this.#sceneData = {
-                isPlayerKnockOut: false,
-            };
-        }
+       
+        /** @type {string} */
+        const area =this.#sceneData?.area || dataManager.store.get(DATA_MANAGER_STORE_KEYS.PLAYER_LOCATION).area;
+        const isInterior = this.#sceneData?.isInterior || dataManager.store.get(DATA_MANAGER_STORE_KEYS.PLAYER_LOCATION).isInterior;
+        const isPlayerKnockOut = this.#sceneData?.isPlayerKnockOut || false;
+        
+        this.#sceneData = {
+            area,
+            isInterior,
+            isPlayerKnockOut,
+          };
 
         console.log(this.#sceneData);
-
-        this.#monsterEncountered = false;
-        this.#npcPlayerIsInteractingWith = undefined;
 
         //UPDATE plauyer location, and map data if the player was knocked out in a battle
         if(this.#sceneData.isPlayerKnockOut){
@@ -116,6 +121,16 @@ export class WorldScene extends BaseScene {
 
         }
 
+        dataManager.store.set(
+            DATA_MANAGER_STORE_KEYS.PLAYER_LOCATION,
+            /** @type {import('../utils/data-manager.js').PlayerLocation} */ ({
+              area: this.#sceneData.area,
+              isInterior: this.#sceneData.isInterior,
+            })
+          );
+        
+        this.#monsterEncountered = false;
+        this.#npcPlayerIsInteractingWith = undefined;
         this.#items = [];
     }
 
@@ -123,14 +138,14 @@ export class WorldScene extends BaseScene {
         super.create();
 
 
-        const x = 6 * TILE_SIZE;
-        const y = 22 * TILE_SIZE;
-        this.cameras.main.setBounds(0, 0, 1280, 2176);
-        this.cameras.main.setZoom(0.8);
-        this.cameras.main.centerOn(x, y);
+        // const x = 6 * TILE_SIZE;
+        // const y = 22 * TILE_SIZE;
+        // this.cameras.main.setBounds(0, 0, 1280, 2176);
+        // this.cameras.main.setZoom(0.8);
+        // this.cameras.main.centerOn(x, y);
 
         // create map and collision layer
-        const map = this.make.tilemap({ key: WORLD_ASSET_KEYS.WORLD_MAIN_LEVEL });
+        const map = this.make.tilemap({ key: `${this.#sceneData.area.toUpperCase()}_LEVEL` });
         // the first parameter is the name of the tileset in tiled and the seconde parameter is the key
         // of the tileset image used when loading the file in preload
         const collisionTiles = map.addTilesetImage('collision', WORLD_ASSET_KEYS.WORLD_COLLISION);
@@ -146,27 +161,31 @@ export class WorldScene extends BaseScene {
         collisionLayer.setAlpha(TILED_COLLISION_LAYER_ALPHA).setDepth(2);
 
         // create interactive layer
+        const hasSignLayer = map.getObjectLayer('Sign') !== null;
+        if (hasSignLayer) {
         this.#signLayer = map.getObjectLayer('Sign');
-        if (!this.#signLayer) {
-            console.log(`[${WorldScene.name}:create] encountered erro while creating sign layer using data from tiled`);
-            return;
         }
+       
         //console.log(this.#signLayer);
 
-        const encounterTiles = map.addTilesetImage('encounter', WORLD_ASSET_KEYS.WORLD_ENCOUNTER_ZONE);
-        if (!encounterTiles) {
-            console.log(`[${WorldScene.name}:create] encountered erro while creating encounter tiles using data from tiled`);
-            return;
+        const hasEncounterLayer = map.getObjectLayer('Encounter') !== null;
+        if (hasEncounterLayer) {
+            const encounterTiles = map.addTilesetImage('encounter', WORLD_ASSET_KEYS.WORLD_ENCOUNTER_ZONE);
+            if (!encounterTiles) {
+              console.log(`[${WorldScene.name}:create] encountered error while creating encounter tiles from tiled`);
+              return;
+            }
+            this.#encounterLayer = map.createLayer('Encounter', encounterTiles, 0, 0);
+            this.#encounterLayer.setAlpha(TILED_COLLISION_LAYER_ALPHA).setDepth(2);
         }
-        this.#encounterLayer = map.createLayer('Encounter', encounterTiles, 0, 0);
-        if (!this.#encounterLayer) {
-            console.log(`[${WorldScene.name}:create] encountered erro while creating encounter layer using data from tiled`);
-            return;
-        }
-        this.#encounterLayer.setAlpha(TILED_COLLISION_LAYER_ALPHA).setDepth(2);
 
 
-        this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_BACKGROUND, 0).setOrigin(0);
+        if (!this.#sceneData.isInterior) {
+            this.cameras.main.setBounds(0, 0, 1280, 2176);
+          }
+          this.cameras.main.setZoom(0.8);
+
+        this.add.image(0, 0, `${this.#sceneData.area.toUpperCase()}_BACKGROUND`, 0).setOrigin(0);
 
         //create items and collison
         this.#createItems(map);
@@ -196,7 +215,7 @@ export class WorldScene extends BaseScene {
             npc.addCharacterToCheckForCollisionsWith(this.#player);
         });
 
-        this.add.image(0, 0, WORLD_ASSET_KEYS.WORLD_FOREGROUND, 0).setOrigin(0);
+        this.add.image(0, 0, `${this.#sceneData.area.toUpperCase()}_FOREGROUND`, 0).setOrigin(0);
 
  
         //create dialog ui
@@ -333,7 +352,7 @@ export class WorldScene extends BaseScene {
 
         const { x, y } = this.#player.sprite;
         const targetPosition = getTargetPositionFromGameObjectPositionAndDirection({ x, y }, this.#player.direction);
-        const nearbySign = this.#signLayer.objects.find((object) => {
+        const nearbySign = this.#signLayer?.objects.find((object) => {
             if (!object.x || !object.y) {
                 return;
             }
