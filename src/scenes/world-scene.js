@@ -81,6 +81,8 @@ export class WorldScene extends BaseScene {
     #sceneData;
      /**@type {Item[]} */
     #items;
+    /** @type {Phaser.Tilemaps.ObjectLayer | undefined} */
+    #entranceLayer;
 
     constructor() {
         super({
@@ -99,7 +101,11 @@ export class WorldScene extends BaseScene {
        
         /** @type {string} */
         const area =this.#sceneData?.area || dataManager.store.get(DATA_MANAGER_STORE_KEYS.PLAYER_LOCATION).area;
-        const isInterior = this.#sceneData?.isInterior || dataManager.store.get(DATA_MANAGER_STORE_KEYS.PLAYER_LOCATION).isInterior;
+        let isInterior = this.#sceneData?.isInterior;
+        if (isInterior === undefined) {
+            isInterior = dataManager.store.get(DATA_MANAGER_STORE_KEYS.PLAYER_LOCATION).isInterior;
+          }
+         
         const isPlayerKnockOut = this.#sceneData?.isPlayerKnockOut || false;
         
         this.#sceneData = {
@@ -108,7 +114,6 @@ export class WorldScene extends BaseScene {
             isPlayerKnockOut,
           };
 
-        console.log(this.#sceneData);
 
         //UPDATE plauyer location, and map data if the player was knocked out in a battle
         if(this.#sceneData.isPlayerKnockOut){
@@ -132,17 +137,13 @@ export class WorldScene extends BaseScene {
         this.#monsterEncountered = false;
         this.#npcPlayerIsInteractingWith = undefined;
         this.#items = [];
+        this.#encounterLayer = undefined;
+        this.#signLayer = undefined;
+        this.#encounterLayer = undefined;
     }
 
     create() {
         super.create();
-
-
-        // const x = 6 * TILE_SIZE;
-        // const y = 22 * TILE_SIZE;
-        // this.cameras.main.setBounds(0, 0, 1280, 2176);
-        // this.cameras.main.setZoom(0.8);
-        // this.cameras.main.centerOn(x, y);
 
         // create map and collision layer
         const map = this.make.tilemap({ key: `${this.#sceneData.area.toUpperCase()}_LEVEL` });
@@ -168,7 +169,14 @@ export class WorldScene extends BaseScene {
        
         //console.log(this.#signLayer);
 
-        const hasEncounterLayer = map.getObjectLayer('Encounter') !== null;
+        //create layer for scene transition entrances
+        const hasSceneTransitionLayer = map.getObjectLayer('Scene-Transitions') !== null;
+        if (hasSceneTransitionLayer) {
+            this.#entranceLayer = map.getObjectLayer('Scene-Transitions');
+          }
+
+        //create collision layer for the encounters
+        const hasEncounterLayer = map.getLayerIndexByName('Encounter') !== null;
         if (hasEncounterLayer) {
             const encounterTiles = map.addTilesetImage('encounter', WORLD_ASSET_KEYS.WORLD_ENCOUNTER_ZONE);
             if (!encounterTiles) {
@@ -206,6 +214,12 @@ export class WorldScene extends BaseScene {
             },
             otherCharactersToCheckForCollisionsWith: this.#npcs,
             objectsToCheckForCollisionsWith: this.#items,
+            entranceLayer: this.#entranceLayer,
+            enterEntranceCallback: (entranceName, entranceId, isBuildingEntrance) => {
+                this.#handleEntranceEnteredCallback(entranceName, entranceId, isBuildingEntrance);
+            },
+                
+
         });
 
         this.cameras.main.startFollow(this.#player.sprite);
@@ -568,5 +582,52 @@ export class WorldScene extends BaseScene {
       });
       this.#items.push(item);
     }
+    }
+
+    /**
+     * @param {string} entranceName
+     * @param {string} entranceId
+     * @param {boolean} isBuildingEntrance
+     * @returns {void}
+    */
+    #handleEntranceEnteredCallback(entranceName, entranceId, isBuildingEntrance) {
+        this._contorls.lockInput = true;
+        console.log(entranceId,entranceName,isBuildingEntrance);
+
+        const map = this.make.tilemap({ key: `${entranceName.toUpperCase()}_LEVEL` });
+        const entranceObjectLayer = map.getObjectLayer('Scene-Transitions');
+        const entranceObject = entranceObjectLayer.objects.find((object) => {
+            const tempEntranceName = object.properties.find((property) => property.name === 'connects_to').value;
+            const tempEntranceId = object.properties.find((property) => property.name === 'entrance_id').value;
+
+            return tempEntranceName === this.#sceneData.area && tempEntranceId === entranceId;
+        });
+        
+        let x = entranceObject.x;
+        let y = entranceObject.y - TILE_SIZE;
+
+        if (this.#player.direction === DIRECTION.UP) {
+            y -= TILE_SIZE;
+        }
+        if (this.#player.direction === DIRECTION.DOWN) {
+            y += TILE_SIZE;
+        }
+
+
+        this.cameras.main.fadeOut(1000, 0, 0, 0, (camera, progress) => {
+            if (progress === 1) {
+              dataManager.store.set(DATA_MANAGER_STORE_KEYS.PLAYER_POSITION, {
+                x,
+                y,
+              });
+      
+              /** @type {WorldSceneData} */
+              const dataToPass = {
+                area: entranceName,
+                isInterior: isBuildingEntrance,
+              };
+              this.scene.start(SCENE_KEYS.WORLD_SCENE, dataToPass);
+            }
+        });
     }
 }
