@@ -380,8 +380,10 @@ export class WorldScene extends BaseScene {
 
         if(nearbyItem){
             const item = DataUtils.getItem(this, nearbyItem.itemId);
+            dataManager.addItem(item, 1);
             nearbyItem.gameObject.destroy();
             this.#items.splice(nearbyItemIndex,1);
+            dataManager.addItemPickedUp(nearbyItem.id);
             this.#dialogUi.showDialogModal([`You found a ${item.name}`]);
         }
     }
@@ -504,41 +506,48 @@ export class WorldScene extends BaseScene {
         dataManager.store.set(DATA_MANAGER_STORE_KEYS.MONSTERS_IN_PARTY,monsters);
     }
 
-    /**
-     * @param {Phaser.Tilemaps.Tilemap} map
-     * @returns {void} 
-     */
-    #createItems(map) {
-        const itemObjectLayer = map.getObjectLayer('Item');
-        if(!itemObjectLayer){
-                return;
-        }
-        
-        const items = itemObjectLayer.objects;
-        const validItems = items.filter((item) => {
-            return item.x !== undefined && item.y !== undefined;
-        });
-        
-        for(const tiledItem of validItems){
-             /** @type {number} */
-             const itemId = 
-             /** @type {TiledObjectProperty[]}*/(tiledItem.properties).find((property) => property.name === TILED_ITEM_PROPERTY.ITEM_ID)?.value;
-            
-             /** @type {number} */
-             const id = 
-             /** @type {TiledObjectProperty[]}*/(tiledItem.properties).find((property) => property.name === TILED_ITEM_PROPERTY.ID)?.value;
-            
-
-             const item = new Item({
-                scene: this,
-                position:{
-                    x: tiledItem.x,
-                    y: tiledItem.y - TILE_SIZE,
-                },
-                itemId,
-                id,
-             });
-             this.#items.push(item);
-        }
+   /**
+   * @param {Phaser.Tilemaps.Tilemap} map
+   * @returns {void}
+   */
+  #createItems(map) {
+    const itemObjectLayer = map.getObjectLayer('Item');
+    if (!itemObjectLayer) {
+      return;
     }
+    const items = itemObjectLayer.objects;
+    const validItems = items.filter((item) => {
+      return item.x !== undefined && item.y !== undefined;
+    });
+
+    /** @type {number[]} */
+    const itemsPickedUp = dataManager.store.get(DATA_MANAGER_STORE_KEYS.ITEMS_PICKED_UP) || [];
+
+    for (const tiledItem of validItems) {
+      /** @type {number} */
+      const itemId = /** @type {TiledObjectProperty[]} */ (tiledItem.properties).find(
+        (property) => property.name === TILED_ITEM_PROPERTY.ITEM_ID
+      )?.value;
+
+      /** @type {number} */
+      const id = /** @type {TiledObjectProperty[]} */ (tiledItem.properties).find(
+        (property) => property.name === TILED_ITEM_PROPERTY.ID
+      )?.value;
+
+      if (itemsPickedUp.includes(id)) {
+        continue;
+      }
+
+      const item = new Item({
+        scene: this,
+        position: {
+          x: tiledItem.x,
+          y: tiledItem.y - TILE_SIZE,
+        },
+        itemId,
+        id,
+      });
+      this.#items.push(item);
+    }
+  
 }
