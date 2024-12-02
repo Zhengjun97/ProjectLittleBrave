@@ -26,6 +26,7 @@ import { exhaustiveGuard } from '../../utils/guard.js';
  * @property {Phaser.Tilemaps.TilemapLayer} [collisionLayer]
  * @property {Character []} [otherCharactersToCheckForCollisionsWith=[]]
  * @property {() => void} [spriteChangedDirectionCallback]
+ * @property {{position: import('../../types/typedef.js').Coordinate} []} [objectsToCheckForCollisionsWith]
  */
 
 export class Character {
@@ -53,6 +54,8 @@ export class Character {
     _otherCharactersToCheckForCollisionsWith;
     /** @protected @type {() => void | undefined}*/
     _spriteChangedDirectionCallback;
+    /**@protected @type  {{position: import('../../types/typedef.js').Coordinate} []} */
+    _objectsToCheckForCollisionsWith;
 
     /**
      * @param {CharacterConfig} config
@@ -72,7 +75,7 @@ export class Character {
             .setOrigin(this._origin.x, this._origin.y);
         this._spriteGridMovementFinishedCallback = config.spriteGridMovementFinishedCallback;
         this._spriteChangedDirectionCallback = config.spriteChangedDirectionCallback;
-
+        this._objectsToCheckForCollisionsWith = config.objectsToCheckForCollisionsWith || [];
     }
 
     /** @type {Phaser.GameObjects.Sprite} */
@@ -172,7 +175,10 @@ export class Character {
         const targetPosition = {...this._targetPosition};
         const updatedPostion = getTargetPositionFromGameObjectPositionAndDirection(targetPosition, this._direction);
 
-        return this.#doesPositionCollideWithCollisionLayer(updatedPostion) || this.#doesPositionCollideWithOtherCharacter(updatedPostion);
+        return (this.#doesPositionCollideWithCollisionLayer(updatedPostion) || 
+        this.#doesPositionCollideWithOtherCharacter(updatedPostion) ||
+        this.#doesPositionCollideWithObject(updatedPostion)
+        );
     }
 
     #handleSpriteMovement() {
@@ -226,7 +232,6 @@ export class Character {
     }
 
     /**
-     * 
      * @param {import('../../types/typedef.js').Coordinate} position 
      * @returns {boolean}
      */
@@ -245,5 +250,21 @@ export class Character {
           );
         });
         return collidesWithACharacter;
-      }
+    }
+
+    /**
+   * @param {import('../../types/typedef.js').Coordinate} position
+   * @returns {boolean}
+   */
+  #doesPositionCollideWithObject(position) {
+    const { x, y } = position;
+    if (this._objectsToCheckForCollisionsWith.length === 0) {
+      return false;
+    }
+
+    const collidesWithObject = this._objectsToCheckForCollisionsWith.some((object) => {
+      return object.position.x === x && object.position.y === y;
+    });
+    return collidesWithObject;
+  }
 }

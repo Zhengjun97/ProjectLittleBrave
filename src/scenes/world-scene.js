@@ -186,6 +186,7 @@ export class WorldScene extends BaseScene {
                 this.#handlePlayerDirectionUpdate();
             },
             otherCharactersToCheckForCollisionsWith: this.#npcs,
+            objectsToCheckForCollisionsWith: this.#items,
         });
 
         this.cameras.main.startFollow(this.#player.sprite);
