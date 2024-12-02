@@ -549,5 +549,5 @@ export class WorldScene extends BaseScene {
       });
       this.#items.push(item);
     }
-  
+    }
 }
