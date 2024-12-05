@@ -19,7 +19,7 @@ const OPTIONS_TEXT_STYLE = Object.freeze({
 const OPTION_MENU_OPTION_INFO_MSG = Object.freeze({
     TEXT_SPEED: 'Choose one of three text display speeds.',
     BATTLE_SCENE: 'Choose to display battle animations and effects or not.',
-    BATTLE_STYLE: 'Choose to allow you to be recalled between rounds.',
+    BATTLE_STYLE: 'Choose to change text style in Battle',
     SOUND: 'Choose to enbale or disable the sound.',
     VOLUME: 'Choose the volume for the music and sound effects of the game.',
     MENU_COLOR: 'Choose one of the three menue color options.',
