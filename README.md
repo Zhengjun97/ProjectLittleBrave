@@ -1,11 +1,10 @@
 # Project4900
 
 ## Overview
-This project is a web-based educational game designed to help students learn concepts such as the history of computer science and math skills through interactive quizzes and gameplay. The game is structured so that players can explore a world scene, interact with NPCs, and engage in boss battles where answering questions correctly allows them to attack the boss. This gamified learning approach makes education more engaging and enjoyable for students.
+This project is a web-based 2D game designed to provide players with an immersive and enjoyable experience. Players can explore a world scene, interact with NPCs, pick up items, and engage in boss battles. While the initial focus was on incorporating educational elements, such as quizzes to teach computer science and math skills, the project evolved into a more gameplay-focused experience due to time constraints. The game's vibrant world and interactive features aim to captivate players and make their journey entertaining.
 
 ## Key Features
 - **World Exploration**: Players can control their character, interact with NPCs, and explore different parts of the game world.
-- **Answer & Attack**: Players can make attacks based on their answers to quiz questions during boss battles.
 - **Boss Battles**: Players participate in turn-based boss battles, where correct answers lead to attacks on the boss, and incorrect answers result in the player being attacked.
 - **Interactive Dialogue**: Players engage in conversations with NPCs before entering battle scenes, making the experience more immersive.
 
